@@ -76,7 +76,7 @@ module Lib_meta
 		# Quick check to see if xterm exists
 		xterm = false
 		xtermtest = `xterm -version`
-		if xtermtest =~ /XTerm\(\d+\)/m and Menu.opts[:xterm]
+		if xtermtest =~ /XTerm\(\d+/m and Menu.opts[:xterm]
 			xterm = true
 		end
 
@@ -88,12 +88,13 @@ module Lib_meta
 		end
 
 		if File.exists? rc
-			if xterm 
+			if xterm
 				system("xterm -geometry -0+0 -T msfhandler -hold -e msfconsole -r #{rc} &")
 			else
 				# If not xterm, try putting shells in screens
 				screen = "screen -dmS smbexec_msfhandler"
 				system("#{screen} bash -c 'msfconsole -r #{rc}'")
+				print_status("msf handler started in screen session")
 			end
 		else
 			print_bad("Resource file doesn't seem to exist at #{rc}...")

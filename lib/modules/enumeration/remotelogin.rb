@@ -9,7 +9,7 @@ class RemoteLogin < Poet::Scanner
 		# Check if they want to enum DA
 		@da_check = ''
 		until @da_check.eql? 'y' or @da_check.eql? 'n'
-			print "Do you want to look for Domain/Enterprise processes? [#{color_banner('y')}|#{color_banner('n')}] "
+			print "Do you want to look for Domain/Enterprise processes? [#{color_banner('y')}|#{color_banner('n')}]"
 			@da_check = rgets.downcase
 		end
 		puts

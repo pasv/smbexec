@@ -15,7 +15,7 @@ class HashesWorkstation < Poet::Scanner
 
 		# Make sure it has enough time to do its thing
 		if @timeout < 180
-			@timout = @timeout + 180
+			@timeout = @timeout + 180 unless @timeout.eql? 0
 		end
 
 		# Set up for WCE dump if configured

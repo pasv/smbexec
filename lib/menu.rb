@@ -101,7 +101,7 @@ class Menu
 
 		# Quiet save state for when quit or other needed cases
 		unless quiet
-			print("Enter filename for save state [#{color_banner(save_name)}]: ")
+			print("Enter filename for save state [#{color_banner(save_name)}]:")
 			new_name = rgets
 
 			# Check if empty, if not check if ends in '.yml'
@@ -140,7 +140,7 @@ class Menu
 		
 		# Make sure the user gives a valid selection
 		until (1..state_files.length+1).member?(to_load.to_i)
-			print "Which state do you wish to load? "
+			print "Which state do you wish to load?"
 			to_load = rgets
 		end
 

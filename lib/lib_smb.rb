@@ -38,7 +38,7 @@ module Lib_smb
 		domain_banner = "LOCALHOST" if Menu.opts[:domain].eql? '.'
 
 		# prompt user for domain
-		print "Domain [#{color_banner(domain_banner)}] : "
+		print "Domain [#{color_banner(domain_banner)}] :"
 		domain = rgets
 		
 		# Update banner before switching to period if needed
