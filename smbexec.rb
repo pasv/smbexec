@@ -88,6 +88,13 @@ optparse = OptionParser.new do |opts|
 	opts.parse!
 end
 
-Dir.chdir(APP_ROOT) do
-	Guide.new(options)
+# If user and pass, not either or, start guide class
+if (!!(options[:creds].nil?) ^ !!(options[:pass].nil?))
+	puts
+	puts "User and password required, please specify both or no credentials"
+	puts
+else
+	Dir.chdir(APP_ROOT) do
+		Guide.new(options)
+	end
 end
