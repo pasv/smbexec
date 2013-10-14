@@ -192,12 +192,14 @@ module Lib_meta
 	# Use cryper.exe to encrypt the payload
 	def encrypt_payload(payload)
 		print_status("Enrypting payload...")
-
-		sleep 1
 		
 		# Due to dir switch, get absolute paths of files
 		new_path = "#{File.absolute_path(@log)}/enc_backdoor.exe"
 		payload = File.absolute_path(payload)
+
+		file_delete(new_path) if file_exists? new_path
+
+		sleep 1
 
 		cmd = "#{Menu.extbin[:crypter]} #{payload} #{new_path}"
 

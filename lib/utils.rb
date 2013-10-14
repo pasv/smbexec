@@ -307,6 +307,14 @@ module Utils
 		end	
 	end
 
+	def file_delete(file)
+		begin
+			File.delete(file)
+		rescue IOError => e
+			print_warning("Issues deleting file: #{e}")
+		end	
+	end
+
 	# Query DNS to get records concerning DCs
 	def get_dcs
 		if not Menu.opts[:domain].empty? and not Menu.opts[:domain].eql? '.'
