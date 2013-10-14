@@ -4,7 +4,7 @@ require 'hashdump'
 
 class HashesWorkstation < Poet::Scanner
 	self.mod_name = "Workstation & Server Hashes"
-	self.description = ""
+	self.description = "Gather local hashes from SAM database, cached credentials, and from within memory from targets."
 	self.invasive = true
 
 	def setup

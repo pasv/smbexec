@@ -2,7 +2,7 @@ require 'poet'
 
 class RemoteLogin < Poet::Scanner
 	self.mod_name = "Remote login validation"
-	self.description = ""
+	self.description = "Identify where credentials have local administrative access."
 
 	def setup
 		puts

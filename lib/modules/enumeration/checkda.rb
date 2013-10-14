@@ -2,7 +2,7 @@ require 'poet'
 
 class CheckDA < Poet::Scanner
 	self.mod_name = "Check systems for Domain Admin"
-	self.description = ""
+	self.description = "Identify Domain Admin processes/logins."
 
 	def setup
 		# Print title

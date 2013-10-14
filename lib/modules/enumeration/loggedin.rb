@@ -2,7 +2,7 @@ require 'poet'
 
 class Loggedin < Poet::Scanner
 	self.mod_name = "Check systems for logged in users"
-	self.description = ""
+	self.description = "Identify logged in users."
 	
 	def setup
 		# Print title

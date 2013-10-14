@@ -3,7 +3,7 @@ require 'utils'
 class Hostlist < Poet
 	include Utils
 	self.mod_name = "Create a host list"
-	self.description = ""
+	self.description = "Create a host list."
 
 	def initialize
 		local_addr = local_ip

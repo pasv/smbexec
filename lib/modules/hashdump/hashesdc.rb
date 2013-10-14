@@ -2,7 +2,7 @@ require 'poet'
 
 class Hashesdc < Poet::Scanner
 	self.mod_name = "Domain Controller"
-	self.description = ""
+	self.description = "Gather hashes from the Domain Controller's NTDS.dit file."
 	self.invasive = true
 
 	# Print the DCs based on DNS records before host selection
