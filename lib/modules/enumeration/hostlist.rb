@@ -26,7 +26,8 @@ class Hostlist < Poet
 						:tcp_scan => true,
 						:xml => "#{Menu.opts[:log]}\/host_scan.xml",
 						:ports => [139,445],
-						:targets => range
+						:targets => range,
+						:enable_dns => false
 					)
 				}
 			end

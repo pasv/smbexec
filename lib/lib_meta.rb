@@ -54,6 +54,7 @@ module Lib_meta
 		rc << "set LHOST #{lhost}\n"
 		rc << "set LPORT #{lport}\n"
 		rc << "set SessionCommunicationTimeout 600\n" if payload =~ /reverse_https/
+		#rc << "set SessionExpirationTimoeut"
 		rc << "set ExitOnSession false\n"
 		rc << "set InitialAutoRunScript migrate -f\n"
 		rc << "set PrependMigrate true\n"

@@ -10,7 +10,7 @@ require 'readline'
 module Utils
 
 	# Because lazy, quick readline function
-	def rgets(prompt = '')
+	def rgets(prompt = ' ')
 		Readline.readline("#{prompt}", true)
 	end
 
