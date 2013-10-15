@@ -92,9 +92,18 @@ module Lib_meta
 				system("xterm -geometry -0+0 -T msfhandler -hold -e msfconsole -r #{rc} &")
 			else
 				# If not xterm, try putting shells in screens
-				screen = "screen -dmS smbexec_msfhandler"
-				system("#{screen} bash -c 'msfconsole -r #{rc}'")
-				print_status("msf handler started in screen session")
+				print_status("Launching Metasploit in a screen session, once loaded hit Ctrl-a then Ctrl-d to detach and continue setup")
+				puts "Press enter to continue"
+				puts
+				gets
+
+				screen = "screen -mS smbexec_msfhandler"
+				pid = spawn "#{screen} bash -c 'msfconsole -r #{rc}'"
+				Process.detach(pid)
+
+				sleep 1
+
+				print_status("msf handler started in screen")
 			end
 		else
 			print_bad("Resource file doesn't seem to exist at #{rc}...")
