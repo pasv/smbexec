@@ -98,13 +98,13 @@ module Lib_smb
 		uac_clean = uac.split(" ")
 		# inspect uac reg query output for
 		if uac_clean.include?("0x1")
-			print_bad("#{host}: UAC Enabled")
+			print_bad("#{host.ljust(15)} - UAC Enabled")
 			return true
 		elsif uac_clean.include?("0x0")
-			print_good("#{host}: UAC Disabled")
+			print_good("#{host.ljust(15)} - UAC Disabled")
 			return false
 		else
-			print_bad("Unable to access registry or value did not exist")
+			print_bad("#{host.ljust(15)} - Unable to access registry or value did not exist")
 			return false
 		end
 	end
