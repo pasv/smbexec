@@ -45,11 +45,11 @@ module Lib_meta
 
 	# Create RC script
 	def create_rc(payload, lhost, lport)
-		rc = "spool #{@log}/msf_spool_#{Time.now.strftime('%m-%d-%Y_%H-%M')}\n"
-		rc << "<ruby>\n"
+		rc = "<ruby>\n"
 		rc << "sleep 3\n"
-		rc << "system('screen -d')" unless Menu.opt[:xterm]
 		rc << "</ruby>\n"
+	#	rc << "screen -d" #unless Menu.opts[:xterm]
+		rc << "spool #{@log}/msf_spool_#{Time.now.strftime('%m-%d-%Y_%H-%M')}\n"
 		rc << "use exploit/multi/handler\n"
 		rc << "set payload #{payload}\n"
 		rc << "set LHOST #{lhost}\n"
@@ -99,7 +99,7 @@ module Lib_meta
 				gets
 
 				screen = "screen -mS smbexec_msfhandler"
-				pid = spawn "#{screen} bash -c 'msfconsole -r #{rc}'"
+				pid = spawn "#{screen} bash -c 'msfconsole -r #{rc}' &"
 				Process.detach(pid)
 
 				sleep 1
