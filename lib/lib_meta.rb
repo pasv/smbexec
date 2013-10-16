@@ -159,7 +159,7 @@ module Lib_meta
 
 		# Check if encodings worked, if not redo
 		while build.eql? "PYIIIIIIIIIIIIIIII7QZjAXP0A0AkAAQ2AB2BB0BBABXP8ABuJIAA"
-			print_error("Bad encoding, re-encoding...")
+			print_bad("Bad encoding, re-encoding...")
 			capture_stderr('/dev/null') { build = `#{base_build}` }
 		end
 
