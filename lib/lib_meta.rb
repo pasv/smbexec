@@ -158,9 +158,18 @@ module Lib_meta
 		capture_stderr('/dev/null') { build = `#{base_build}` }
 
 		# Check if encodings worked, if not redo
+		track = 0
 		while build.eql? "PYIIIIIIIIIIIIIIII7QZjAXP0A0AkAAQ2AB2BB0BBABXP8ABuJIAA"
+			if track > 2
+				print_bad("Issue with msfencoding, quiting module...happens once and a while, try again")
+				puts
+				puts "Press enter to continue"
+				gets
+				raise "Bad encoding"
+			end
 			print_bad("Bad encoding, re-encoding...")
 			capture_stderr('/dev/null') { build = `#{base_build}` }
+			track = track + 1
 		end
 
 		# Build C file
