@@ -31,7 +31,8 @@ class Guide < Menu
 			log_dir = options[:log] || config['log']
 
 			Menu.opts[:log] = "#{APP_ROOT}\/log\/smbexec-#{time.year}-#{time.month}-#{time.day}"
-			
+
+			Menu.opts[:verbose] = options[:verbose] || config['verbose']
 			Menu.opts[:domain] = options[:domain] || config['domain']
 			Menu.opts[:threads] = options[:threads] || config['threads']
 			Menu.opts[:timeout] = options[:timeout] || config['timeout']
@@ -109,9 +110,8 @@ class Guide < Menu
 			print "Press enter to continue"
 			gets
 		end
-		Menu.opts[:version] = config['debug_mode']
+
 		Menu.opts[:version] = options[:version] || "Huh?, how'd you kill the version number"
-		Menu.opts[:verbose] = options[:verbose] || false
 		Menu.opts[:stealth] = options[:stealth] || nil
 		config['stealth_mode'].each do |x, y|
 			Menu.opts[x.to_sym] = y.to_i
