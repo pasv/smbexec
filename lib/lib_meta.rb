@@ -48,8 +48,10 @@ module Lib_meta
 		rc = "<ruby>\n"
 		rc << "sleep 3\n"
 		rc << "</ruby>\n"
-	#	rc << "screen -d" #unless Menu.opts[:xterm]
 		rc << "spool #{@log}/msf_spool_#{Time.now.strftime('%m-%d-%Y_%H-%M')}\n"
+		rc << "<ruby>\n"
+		rc << "sleep 3\n"
+		rc << "</ruby>\n"
 		rc << "use exploit/multi/handler\n"
 		rc << "set payload #{payload}\n"
 		rc << "set LHOST #{lhost}\n"
@@ -98,9 +100,9 @@ module Lib_meta
 				puts
 				gets
 
-				screen = "screen -mS smbexec_msfhandler"
-				pid = spawn "#{screen} bash -c 'msfconsole -r #{rc}' &"
-				Process.detach(pid)
+				screen = "screen -S smbexec_msfhandler"
+				system("#{screen} bash -c 'msfconsole -r #{rc} -q -x \"screen -d\"'")
+
 
 				sleep 1
 
