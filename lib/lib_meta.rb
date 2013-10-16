@@ -48,6 +48,7 @@ module Lib_meta
 		rc = "spool #{@log}/msf_spool_#{Time.now.strftime('%m-%d-%Y_%H-%M')}\n"
 		rc << "<ruby>\n"
 		rc << "sleep 3\n"
+		rc << "system('screen -d')" unless Menu.opt[:xterm]
 		rc << "</ruby>\n"
 		rc << "use exploit/multi/handler\n"
 		rc << "set payload #{payload}\n"
