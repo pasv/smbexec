@@ -20,16 +20,16 @@ module Lib_smb
 			# prompt user for password
 			print "Password or hash (<LM>:<NTLM>) [#{Menu.get_banner[:password]}]"
 			pass = rgets(" : ")
-			cred_set = [[temp_user, pass]]
 
 			# If empty, continue with current creds
-			unless temp_user.empty?
+			unless temp_user.empty? and pass.empty?
 				if pass.is_ntlm?
 					Menu.update_banner(color_banner("Pass: NTLM Hash"), :password)					
 				else
 					Menu.update_banner(color_banner("Pass: #{pass}"), :password)
 				end
-				Menu.opts[:creds] = cred_set
+				Menu.opts[:creds][0][0] = temp_user unless temp_user.empty?
+				Menu.opts[:creds][0][1] = pass unless pass.empty?
 			end
 		end
 
@@ -51,8 +51,8 @@ module Lib_smb
 		# Update banner with correct credential banner
 		if user
 			Menu.update_banner(color_banner("#{domain_banner}\\#{user.length} accounts"), :creds)
-		elsif not temp_user.empty?
-			Menu.update_banner(color_banner("#{domain_banner}\\#{temp_user}"), :creds)
+		elsif not temp_user.empty? and not pass.empty?
+			Menu.update_banner(color_banner("#{domain_banner}\\#{Menu.opts[:creds][0][0]}"), :creds)
 		end
 	end
 

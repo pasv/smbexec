@@ -263,8 +263,7 @@ class Poet
 								# Catch all remaining StandardError
 								rescue => e
 									@logger.error("\e[1;31mERROR: \e[0m#{e.backtrace}")
-									print_bad("#{(work_unit[2]).ljust(15)} - Unhandled error: #{e}")
-
+									print_bad("#{(work_unit[2]).ljust(15)} - Unhandled error: #{e}") if work_unit[2]
 									# If the class installs winexe, cleanup on error
 									winexe_cleanup(work_unit[2]) if self.class.invasive
 								end
