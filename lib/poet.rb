@@ -136,11 +136,8 @@ class Poet
 				threadzero = ''
 				# Check if credentials in this loop iteration are NTLM (used for old winexe, requires export)
 				@ntlm = is_ntlm[index] || ''
-				authfile = "username=#{Menu.opts[:creds][index][0]}\npassword=#{Menu.opts[:creds][index][1]}\ndomain=#{Menu.opts[:domain]}\n"
 
-				@test = "#{Menu.opts[:domain]}/#{Menu.opts[:creds][index][0]}%#{Menu.opts[:creds][index][1]}"
-
-				write_file(authfile, "authfile.tmp")
+				@bin_creds = "#{Menu.opts[:domain]}/#{Menu.opts[:creds][index][0]}%#{Menu.opts[:creds][index][1]}"
 
 				# Start threads based on supplied threadcount
 				# If stealth mode, only one thread allowed
@@ -305,9 +302,9 @@ class Poet
 
 	def execute_command(bin, options, command)
 		result = ''
-		#options = "-A #{Menu.opts[:log]}/authfile.tmp #{options}"
+
 		# Testing removal of auth file
-		options = %Q{-U "#{@test}" #{options}}
+		options = %Q{-U "#{@bin_creds}" #{options}}
 		if command
 			result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options} '#{command}'`}
 		else
