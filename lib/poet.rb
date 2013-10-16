@@ -138,6 +138,8 @@ class Poet
 				@ntlm = is_ntlm[index] || ''
 				authfile = "username=#{Menu.opts[:creds][index][0]}\npassword=#{Menu.opts[:creds][index][1]}\ndomain=#{Menu.opts[:domain]}\n"
 
+				@test = "#{Menu.opts[:domain]}/#{Menu.opts[:creds][index][0]}%#{Menu.opts[:creds][index][1]}"
+
 				write_file(authfile, "authfile.tmp")
 
 				# Start threads based on supplied threadcount
@@ -304,7 +306,9 @@ class Poet
 
 	def execute_command(bin, options, command)
 		result = ''
-		options = "-A #{Menu.opts[:log]}/authfile.tmp #{options}"
+		#options = "-A #{Menu.opts[:log]}/authfile.tmp #{options}"
+		# Testing removal of auth file
+		options = %Q{-U "#{@test}" #{options}}
 		if command
 			result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options} '#{command}'`}
 		else

@@ -46,9 +46,9 @@ module Lib_meta
 	# Create RC script
 	def create_rc(payload, lhost, lport)
 		rc = "spool #{@log}/msf_spool_#{Time.now.strftime('%m-%d-%Y_%H-%M')}\n"
-		#rc << "<ruby>\n"
-		#rc << "sleep 3\n"
-		#rc << "</ruby>\n"
+		rc << "<ruby>\n"
+		rc << "sleep 3\n"
+		rc << "</ruby>\n"
 		rc << "use exploit/multi/handler\n"
 		rc << "set payload #{payload}\n"
 		rc << "set LHOST #{lhost}\n"
@@ -163,9 +163,8 @@ module Lib_meta
 			if track > 2
 				print_bad("Issue with msfencoding, quiting module...happens once and a while, try again")
 				puts
-				puts "Press enter to continue"
-				gets
-				raise "Bad encoding"
+				puts "Press Ctrl-c once..."
+				sleep while true
 			end
 			print_bad("Bad encoding, re-encoding...")
 			capture_stderr('/dev/null') { build = `#{base_build}` }
