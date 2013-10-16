@@ -332,7 +332,7 @@ class Poet
 			if line.strip.eql? @ntlm
 				line = ''
 			else
-				line
+				"#{line}\n"
 			end
 		}.join() if @ntlm.is_ntlm?
 		
