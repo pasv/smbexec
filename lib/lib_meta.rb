@@ -60,7 +60,7 @@ module Lib_meta
 		#rc << "set SessionExpirationTimoeut"
 		rc << "set ExitOnSession false\n"
 		rc << "set InitialAutoRunScript migrate -f\n"
-		rc << "set PrependMigrate true\n"
+		rc << "set PrependMigrate true\n" if payload =~ /reverse_tcp/
 		rc << "exploit -j -z\n"
 
 		begin
