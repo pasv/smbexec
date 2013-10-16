@@ -183,14 +183,13 @@ module Lib_smb
 				domain, user = line.split('"')[13].gsub(/"/, '').split('\\')
 				# Skip if built in account
 				next if domain.eql?("NT AUTHORITY")
-				users << user
+				users << user unless user.empty?
 			}
 		else
 			@logger.error(loggedin)
 		end
-		# Unique the array
-		users.uniq!
-		return users
+		# Unique and return the array
+		return users.uniq!
 	end
 
 	# Method to check if Domain or Enterprise admin processes/sessions exist
