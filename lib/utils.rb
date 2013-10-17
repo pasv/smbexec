@@ -16,12 +16,23 @@ module Utils
 
 	# Open IO to save stderr
 	def save_stderr
-		out = StringIO.new
-		$stderr = out
+		out, $stderr = $stderr, StringIO.new
 		yield
-		return out
+		$stderr.string
 	ensure
-		$stderr = STDERR
+		$stderr = out
+	end
+	
+	# Remaps standard error to file, yields to code enclosed, then resets
+	def capture_stderr_poet(thread)
+		local = "#{Menu.opts[:log]}/debug/stderr_#{thread}"
+		previous_stdout = $stderr.clone
+		$stderr.reopen(local)
+		yield
+		read_file(local)
+	ensure
+		$stderr.reopen(previous_stdout)
+		file_delete(local)
 	end
 
 	# Remaps standard error to file, yields to code enclosed, then resets
@@ -269,6 +280,14 @@ module Utils
 		end
 	end
 	
+	def read_file(file)
+		begin
+			File.read(file)
+		rescue => e
+			print_bad("Issues saving file: #{e}")
+		end
+	end
+
 	# Rename a file
 	def rename_file(infile, outfile)
 		begin

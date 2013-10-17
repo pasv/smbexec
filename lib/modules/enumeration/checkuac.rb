@@ -15,13 +15,11 @@ class CheckUAC < Poet::Scanner
 
 	def run(username, password, host)
 		# call check4uac function to determine uac status
-		capture_stderr('/dev/null') {
-			if check4uac(username, password, host)	
-				@success = @success + 1
-			else
-				@failed = @failed + 1
-			end
-		}
+		if check4uac(username, password, host)	
+			@success = @success + 1
+		else
+			@failed = @failed + 1
+		end
 	end
 
 	def finish

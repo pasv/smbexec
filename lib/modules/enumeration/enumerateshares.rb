@@ -37,39 +37,37 @@ class EnumerateShares < Poet::Scanner
 		end
 
 		# enumerate shares without credentials
-		capture_stderr('/dev/null') {
-			smbclient_output = smbclient("#{cmd}#{host}")
+		smbclient_output = smbclient("#{cmd}#{host}")
 
-			# If the output contains shares and no error
-			if smbclient_output =~ /Sharename/m and not smbclient_output =~ /Error returning browse list:/m
-				share = []
-				print = false
-				smbclient_output = smbclient_output.split("\n")
-				line = 0
+		# If the output contains shares and no error
+		if smbclient_output =~ /Sharename/m and not smbclient_output =~ /Error returning browse list:/m
+			share = []
+			print = false
+			smbclient_output = smbclient_output.split("\n")
+			line = 0
 
-				# While there are shares left, get the info
-				while line < smbclient_output.length do
-					if smbclient_output[line] =~ /Sharename/
-						print = true
-						line = line + 2
-						next
-					end
-					line = line + 1
-					# Check to see if it should still collect lines
-					next unless print
-					# Break if line starts with a tab
-					break if not smbclient_output[line] =~ /^\t/
-					print_good("#{host}: #{smbclient_output[line]}")
-					
-					share << smbclient_output[line].gsub(/\t/, '')
-					@success = @success + 1
+			# While there are shares left, get the info
+			while line < smbclient_output.length do
+				if smbclient_output[line] =~ /Sharename/
+					print = true
+					line = line + 2
+					next
 				end
-				@shares[host.to_sym] = share
-			else
-				@failed = @failed + 1
-				@logger.error("#{host}: Could not enumerate shares")
+				line = line + 1
+				# Check to see if it should still collect lines
+				next unless print
+				# Break if line starts with a tab
+				break if not smbclient_output[line] =~ /^\t/
+				print_good("#{host}: #{smbclient_output[line]}")
+				
+				share << smbclient_output[line].gsub(/\t/, '')
+				@success = @success + 1
 			end
-		}
+			@shares[host.to_sym] = share
+		else
+			@failed = @failed + 1
+			@logger.error("#{host}: Could not enumerate shares")
+		end
 	end
 
 	def finish

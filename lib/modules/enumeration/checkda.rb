@@ -16,9 +16,7 @@ class CheckDA < Poet::Scanner
 	def run(username, password, host)
 		# call check4da method to determine if DA is logged in
 		domain_admins = []
-		capture_stderr('/dev/null') {
-			domain_admins = check4da(username, password, host)	
-		}
+		domain_admins = check4da(username, password, host)	
 
 		if domain_admins
 			@da[:"#{host}"] = domain_admins

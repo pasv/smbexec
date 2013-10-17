@@ -26,10 +26,7 @@ class RemoteLogin < Poet::Scanner
 			@access[:"#{host}"] = true
 			@success += 1
 
-			# Catch stderr, mostly due to non-existent domains
-			capture_stderr('/dev/null') {
-				check4da(username, password, host) if @da_check.eql? 'y'
-			}
+			check4da(username, password, host) if @da_check.eql? 'y'
 		else
 			# Else log a failure
 			@access[:"#{host}"] = false

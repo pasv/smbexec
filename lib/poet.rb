@@ -2,6 +2,7 @@ require 'lib_smb'
 require 'thread'
 require 'timeout'
 require 'logger'
+require 'open3'
 
 class Poet
 	include Utils
@@ -304,26 +305,32 @@ class Poet
 		result = ''
 
 		# Testing removal of auth file
-		options = %Q{-U "#{@bin_creds}" #{options}}
-		if command
-			result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options} '#{command}'`}
-		else
-			result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options}`}
+		stderr_bins = capture_stderr_poet(Thread.current.object_id) do
+			options = %Q{-U "#{@bin_creds}" #{options}}
+			if command
+				result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options} '#{command}'`}
+			else
+				result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options}`}
+			end
 		end
 
-		if result =~ /NT_STATUS_LOGON_FAILURE/
+		stderr_bins ||= ""
+
+		error_check = result + stderr_bins
+
+		if error_check =~ /NT_STATUS_LOGON_FAILURE/
 			raise LogonError
-		elsif result =~ /NT_STATUS_ACCOUNT_LOCKED_OUT/
+		elsif error_check =~ /NT_STATUS_ACCOUNT_LOCKED_OUT/
 			raise LockOutError, "locked out"
-		elsif result =~ /status=0x00000001/
+		elsif error_check =~ /status=0x00000001/
 			raise ServiceStartError, "Winexe service failed to start"
-		elsif result =~ /NT_STATUS_ACCESS_DENIED/ or result =~ /ERROR: Login to remote object./
+		elsif error_check =~ /NT_STATUS_ACCESS_DENIED/ or error_check =~ /ERROR: Login to remote object./
 			raise NoAccess, "does not have required permissions"
-		elsif result =~ /NT_STATUS_OBJECT_PATH_NOT_FOUND/
+		elsif error_check =~ /NT_STATUS_OBJECT_PATH_NOT_FOUND/
 			raise NetError, "path not found"
-		elsif result =~ /NT_STATUS_CONNECTION_REFUSED/
+		elsif error_check =~ /NT_STATUS_CONNECTION_REFUSED/
 			raise NetError, "SMB ports appear closed"
-		elsif result =~ /BAD_NETWORK_NAME/
+		elsif error_check =~ /BAD_NETWORK_NAME/
 			raise NetError, "Issues with path"
 		end
 

@@ -37,26 +37,23 @@ class Filefind < Poet::Scanner
 		files_found = ''
 		drives = []		
 	
-		capture_stderr('/dev/null') {
-	
-			wmic = smbwmic(smboptions, "select Description,DeviceID from Win32_logicaldisk")
-			wmic.lines.each do |line|
-				next if line =~ /Description|DeviceID/ or not line.include? '|'
-				split_line = line.split('|')
-				next if split_line[0] =~ /(CD-ROM|Floppy)/
-				drives << split_line[1].strip
-			end
+		wmic = smbwmic(smboptions, "select Description,DeviceID from Win32_logicaldisk")
+		wmic.lines.each do |line|
+			next if line =~ /Description|DeviceID/ or not line.include? '|'
+			split_line = line.split('|')
+			next if split_line[0] =~ /(CD-ROM|Floppy)/
+			drives << split_line[1].strip
+		end
 
-			# For each drive detected, run the search
-			drives.each do |drive|
-				# If final one, add uninstall to winexe
-				smboptions = "--uninstall #{smboptions}" if drive.eql? drives.last
-				find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}")
-				# Continue on if nothing found
-				next if find =~ /File Not Found/
-				files_found << find
-			end
-		}
+		# For each drive detected, run the search
+		drives.each do |drive|
+			# If final one, add uninstall to winexe
+			smboptions = "--uninstall #{smboptions}" if drive.eql? drives.last
+			find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}")
+			# Continue on if nothing found
+			next if find =~ /File Not Found/
+			files_found << find
+		end
 
 		if files_found.empty? 
 			print_bad("#{host.ljust(15)} - File(s) not found")
