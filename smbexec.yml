@@ -9,7 +9,7 @@ threads: 10
 domain: LOCALHOST
 
 # Verbose status
-verbose: true
+verbose: false
 
 # Use screen instead of xterm to open new windows
 xterm: true
@@ -26,7 +26,7 @@ module_description: true
 # Port scan - Determines if smbexec uses nmap or a simple TCP full connect scan via ruby
 nmap: true
 
-# Set to true for more detailed logs
+# Set to true for more detailed logs within the debug folder
 debug_mode: false
 
 # Stealth mode settings, enforces one thread, randomize hosts, and adds random time delays between hosts scanned
@@ -37,7 +37,7 @@ stealth_mode:
 
 # External dependancies
 dependancies:
-# Path to binary files
+
   smbwinexe:      ./progs/smbwinexe
   smbexeclient:   ./progs/smbexeclient
   smbwmic:        /usr/bin/pth-wmic
@@ -46,9 +46,9 @@ dependancies:
   mingw:          /usr/bin/i686-w64-mingw32-gcc
   wce:            ./progs/wce.exe
 
-# Path to scripts
   ntdspwdump:     ./progs/ntdspwdump.py
   dsusers:        /opt/NTDSXtract/dsusers.py
 
 # Optional crypter.exe for payload packing/protecting
+# http://nullsecurity.net/tools/binary.html
 #  crypter: /opt/Hyperion-1.0/crypter.exe

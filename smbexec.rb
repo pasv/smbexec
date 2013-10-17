@@ -16,7 +16,7 @@ require 'optparse'
 options = {}
 optparse = OptionParser.new do |opts|
 
-	options[:version] = "2.0"
+	options[:version] = "2.0 - Machiavellian"
 
 	bar = "*"*70 
 	bar = "\e[1;34m#{bar}\e[0m"
