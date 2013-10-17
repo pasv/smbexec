@@ -274,6 +274,7 @@ module Utils
 			if not local =~ /\/$/
 				local = "#{local}/"
 			end
+			backup_file("#{local}#{name}")
 			File.open("#{local}#{name}", 'w') { |file| file.write(contents) }
 		rescue => e
 			print_bad("Issues saving file: #{e}")
@@ -334,6 +335,14 @@ module Utils
 		end	
 	end
 
+	def backup_file(file)
+		if file_exists?(file)
+			backup = File.split(file)
+			rename_file(file, "#{backup[0]}/#{Time.now.utc.iso8601}_#{backup[1]}")
+			vprint_status("#{file} already exists, backing up")
+		end
+	end
+	
 	# Query DNS to get records concerning DCs
 	def get_dcs
 		if not Menu.opts[:domain].empty? and not Menu.opts[:domain].eql? '.'
