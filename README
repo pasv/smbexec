@@ -10,7 +10,7 @@ Written because we got sick of Metasploit PSExec getting popped
 Special thanks to Carnal0wnage who's blog inspired us to go this route.
 http://carnal0wnage.attackresearch.com/2012/01/psexec-fail-upload-and-exec-instead.html
 
-v2.0 - ROLLING
+v2.0 - 10/17/2013
 UPDATED - Rubified ;)
 
 v1.2.9.1 - 07/31/2013
