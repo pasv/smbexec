@@ -2,6 +2,7 @@
                           smbexec
         A rapid psexec style attack with samba tools
      Original Concept and Script by Brav0Hax & PureHate
+   Ported to ruby and modified by Smilingraccoon and Zeknox
                   Codename - Machiavellian
 ************************************************************
 
