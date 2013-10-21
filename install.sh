@@ -26,7 +26,7 @@ f_debian(){
 		apt-get install -y binutils-mingw-w64 gcc-mingw-w64 mingw-w64 mingw-w64-dev &> /tmp/smbexec-inst/checkinstall
 	fi
 
-	reqs="autoconf cmake comerr-dev g++ gcc libtalloc-dev libtevent-dev libpopt-dev libbsd-dev zlib1g-dev libc6-dev make nmap python-dev ruby-bundler wget xterm"
+	reqs="autoconf cmake comerr-dev g++ gcc libtalloc-dev libtevent-dev libpopt-dev libbsd-dev zlib1g-dev libc6-dev make nmap python-dev bundler wget xterm"
 	for i in $reqs; do
 		dpkg -s "$i" &> /tmp/smbexec-inst/checkinstall
 		isinstalled=$(cat /tmp/smbexec-inst/checkinstall | grep -o "Status: install ok installed")
