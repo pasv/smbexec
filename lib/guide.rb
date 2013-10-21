@@ -83,7 +83,12 @@ class Guide < Menu
 		Menu.extbin.each do |key, bin|
 			if bin and not bin.empty?
 				if not file_exists?(bin)
-					print_warning("#{bin} does not exists, functionality may break. Update smbexec.yml with correct paths.")
+					if key.to_s.eql? 'smbwinexe' or key.to_s.eql? 'smbexeclient'
+						print_warning("#{bin} does not exists, if you haven't run the compile binaries options within the installer. If you have, update smbexec.yml with the correct path")
+					else
+						print_warning("#{bin} does not exists, functionality may break. Update smbexec.yml with correct path.")
+					end
+					
 					warn = true
 				else
 					# When winexe comes up check the version to see if hashes must be exported
