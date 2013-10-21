@@ -83,7 +83,7 @@ class Guide < Menu
 		Menu.extbin.each do |key, bin|
 			if bin and not bin.empty?
 				if not file_exists?(bin)
-					print_warning("#{bin} does not exists, functionality may break")
+					print_warning("#{bin} does not exists, functionality may break. Update smbexec.yml with correct paths.")
 					warn = true
 				else
 					# When winexe comes up check the version to see if hashes must be exported
