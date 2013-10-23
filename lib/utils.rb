@@ -1,11 +1,20 @@
 require 'stringio'
 require 'socket'
-require 'netaddr'
 require 'resolv'
 require 'timeout'
 require 'base64'
-require 'nmap/xml'
 require 'readline'
+
+begin
+	require 'nmap/xml'
+	require 'netaddr'
+rescue LoadError => e
+	puts e
+	puts
+	puts "Load error: Make sure the Ruby gems are isntalled properly, run bundle install"
+	puts
+	exit!
+end
 
 module Utils
 

@@ -43,7 +43,7 @@ class Guide < Menu
 
 			if options[:hosts]
 				Menu.opts[:hosts] = parse_addr(options[:hosts])
-				Menu.update_banner(color_banner("#{Menu.opts[:hosts].length} hosts identified"), :hosts)
+				Menu.update_banner(color_banner("#{Menu.opts[:hosts].length} hosts identified"), :hosts) if Menu.opts[:hosts] 
 			end
 
 			if options[:creds] and options[:pass]

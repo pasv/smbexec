@@ -324,7 +324,7 @@ class Poet
 			raise LockOutError, "locked out"
 		elsif error_check =~ /status=0x00000001/
 			raise ServiceStartError, "Winexe service failed to start"
-		elsif error_check =~ /NT_STATUS_ACCESS_DENIED/ or error_check =~ /ERROR: Login to remote object./
+		elsif error_check =~ /NT_STATUS_ACCESS_DENIED/ or error_check =~ /NT_STATUS_NET_WRITE_FAULT/
 			raise NoAccess, "does not have required permissions"
 		elsif error_check =~ /NT_STATUS_OBJECT_PATH_NOT_FOUND/
 			raise NetError, "path not found"
