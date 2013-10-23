@@ -85,6 +85,8 @@ class Guide < Menu
 				if not file_exists?(bin)
 					if key.to_s.eql? 'smbwinexe' or key.to_s.eql? 'smbexeclient'
 						print_warning("#{bin} does not exists, run the compile binaries options within the installer. If you already have, update smbexec.yml with the correct path")
+					elsif key.to_s.eql? 'smbwmic'
+						print_warning("#{bin} does not exists, functionality may break. You may need to get it from a 'apt-get install passing-the-hash'.")						
 					else
 						print_warning("#{bin} does not exists, functionality may break. Update smbexec.yml with correct path.")
 					end
