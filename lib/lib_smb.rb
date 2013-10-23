@@ -179,7 +179,7 @@ module Lib_smb
 				domain, user = line.split('"')[13].gsub(/"/, '').split('\\')
 				# Skip if built in account
 				next if domain.eql?("NT AUTHORITY")
-				users << user unless user.empty?
+				users << user unless user.to_s.empty?
 			}
 		else
 			@logger.error(loggedin)
@@ -215,14 +215,16 @@ module Lib_smb
 
 			# Get logged in users
 			users = loggedin(username, password, host)
-			da_users.each { |da| 
-				users.each { |user|
-					if da.eql? user 
-						print_good("#{host.ljust(15)} - Admin #{highlight(user)} logged in")
-						domain_admins << user
-					end
+			unless users.to_a.empty?
+				da_users.each { |da|
+					users.each { |user|
+						if da.eql? user 
+							print_good("#{host.ljust(15)} - Admin #{highlight(user)} logged in")
+							domain_admins << user
+						end
+					}
 				}
-			}
+			end
 		end
 
 		unless domain_admins.empty?
