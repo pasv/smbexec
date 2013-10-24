@@ -294,6 +294,9 @@ class Poet
 			print_status("Module end time   : #{end_time.ctime}")
 			print_status("Elapsed time      : #{elapsed_time.ceil} seconds")
 
+			# Flush stdin to prevent previously entered input from skipping the final displays of a module
+			STDIN.flush
+
 			# Call finish method to clean up and report
 			finish
 			@logger.info("#{self.class} finished")
