@@ -100,7 +100,7 @@ class HashesWorkstation < Poet::Scanner
 			# Strip null characters from dump
 			hashdump.strip_chars!("\x00") unless hashdump.empty?
 
-			if hashdump.lines.count > 0 
+			if hashdump.to_s.lines.count > 0 
 				full_print_line << "#{highlight(hashdump.lines.count)} Local, ".ljust(10)
 			else
 				full_print_line << "#{highlight_red(hashdump.lines.count)} Local, ".ljust(10)				
@@ -123,7 +123,7 @@ class HashesWorkstation < Poet::Scanner
 
 		end
 
-		if cachedcreds.lines.count > 0 
+		if cachedcreds.to_s.lines.count > 0 
 			has_hashes = true
 			full_print_line << "#{highlight(cachedcreds.lines.count)} Cached, ".ljust(10)
 		else
@@ -134,7 +134,7 @@ class HashesWorkstation < Poet::Scanner
 		# Dump with WCE if set in config
 		if @wce
 			wcedump = wce(username, password, host)
-			if wcedump.lines.count > 0
+			if wcedump.to_s.lines.count > 0
 				full_print_line << "#{highlight(wcedump.lines.count)} in Memory".ljust(10)
 			else
 				full_print_line << "#{highlight_red(wcedump.lines.count)} in Memory".ljust(10)
