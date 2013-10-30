@@ -58,7 +58,7 @@ class EnumerateShares < Poet::Scanner
 				next unless print
 				# Break if line starts with a tab
 				break if not smbclient_output[line] =~ /^\t/
-				print_good("#{host}: #{smbclient_output[line]}")
+				print_good("#{host.ljust(15)}#{smbclient_output[line]}")
 				
 				share << smbclient_output[line].gsub(/\t/, '')
 				@success = @success + 1
