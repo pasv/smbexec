@@ -2,16 +2,6 @@
 
 raise 'Must run as root' unless Process.uid == 0 or Process.euid == 0
 
-smbexec = __FILE__
-while File.symlink?(smbexec)
-	smbexec = File.readlink(smbexec)
-end
-APP_ROOT = File.dirname(smbexec)
-
-
-$:.unshift( File.join(APP_ROOT, 'lib') )
-
-require 'guide'
 require 'optparse'
 options = {}
 optparse = OptionParser.new do |opts|
@@ -27,7 +17,7 @@ optparse = OptionParser.new do |opts|
 	opts.banner << "Usage: ruby smbexec.rb [options]"
 	opts.banner << ""
 	opts.on('-c' , '--config <CONFIG FILE>', 'YML Configuration file to use' ) do |policy|
-		options[:policy] = policy
+		options[:policy] = File.absolute_path(policy)
 	end
 
 	opts.on('-u' , '--user <USER>', 'Specify the password' ) do |creds|
@@ -43,7 +33,7 @@ optparse = OptionParser.new do |opts|
 	end
 
 	opts.on('-U' , '--user-file <USER_FILE>', 'Credential file, ":" delimited' ) do |cred_file|
-		options[:cred_file] = cred_file
+		options[:cred_file] = File.absolute_path(cred_file)
 	end
 
 	opts.on('-h' , '--hosts <HOST_RANGE>', 'IP range of hosts' ) do |hosts|
@@ -51,11 +41,11 @@ optparse = OptionParser.new do |opts|
 	end
 
 	opts.on('-H' , '--hosts-file <HOST_FILE>', 'File containing hosts or nmap XML output' ) do |hosts|
-		options[:hosts] = hosts
+		options[:hosts] = File.absolute_path(hosts)
 	end
 
 	opts.on('-l' , '--log <LOG_DIR>', 'Directory to log to' ) do |log|
-		options[:log] = log
+		options[:log] = File.absolute_path(log)
 	end
 
 	opts.on('-t' , '--threads <NUM_THREADS>','Number of threads to use' ) do |threads|
@@ -88,12 +78,22 @@ optparse = OptionParser.new do |opts|
 	opts.parse!
 end
 
+smbexec = __FILE__
+while File.symlink?(smbexec)
+	smbexec = File.readlink(smbexec)
+end
+APP_ROOT = File.dirname(smbexec)
+
+
+$:.unshift( File.join(APP_ROOT, 'lib') )
+
 # If user and pass, not either or, start guide class
 if (!!(options[:creds].nil?) ^ !!(options[:pass].nil?))
 	puts
 	puts "User and password required, please specify both or no credentials"
 	puts
 else
+	require 'guide'
 	Dir.chdir(APP_ROOT) do
 		Guide.new(options)
 	end
