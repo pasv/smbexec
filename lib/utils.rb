@@ -277,13 +277,13 @@ module Utils
 	end
 
 	# Write string to file, with optional location
-	def write_file(contents, name, local = Menu.opts[:log])
+	def write_file(contents, name, local = Menu.opts[:log], overwrite = false)
 		begin
 			# Make sure locaiton ends in a slash
 			if not local =~ /\/$/
 				local = "#{local}/"
 			end
-			backup_file("#{local}#{name}")
+			backup_file("#{local}#{name}") unless overwrite
 			File.open("#{local}#{name}", 'w') { |file| file.write(contents) }
 		rescue => e
 			print_bad("Issues saving file: #{e}")
@@ -344,10 +344,12 @@ module Utils
 		end	
 	end
 
+	# If file already exists, back it up and timestamp
+	# This is called as part of the file_write function by default
 	def backup_file(file)
 		if file_exists?(file)
 			backup = File.split(file)
-			rename_file(file, "#{backup[0]}/#{Time.now.utc.iso8601}_#{backup[1]}")
+			rename_file(file, "#{backup[0]}/#{backup[1]}_#{Time.now.utc.iso8601}")
 			vprint_status("#{file} already exists, backing up")
 		end
 	end

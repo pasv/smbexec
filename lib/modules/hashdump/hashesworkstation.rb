@@ -148,6 +148,9 @@ class HashesWorkstation < Poet::Scanner
 		output_text << "In Memory:\n#{wcedump}" unless wcedump.empty?
 
 		@hashes[host.to_sym] = [hashdump, cachedcreds, wcedump]
+		write_file(hashdump,"local", "#{@log}/hashes/#{host}/") unless hashdump.empty?
+		write_file(cachedcreds, "cached", "#{@log}/hashes/#{host}/") unless cachedcreds.empty?
+		write_file(wcedump, "memory", "#{@log}/hashes/#{host}/") unless wcedump.empty?
 	end
 
 	def check_status(hive)
@@ -184,14 +187,10 @@ class HashesWorkstation < Poet::Scanner
 		uniq_memdump.uniq!
 
 		# log results
-		begin
-			File.open("#{@log}/hashes/local_hashes_unique.txt", 'a') { |file| file.write(uniq_hashdump.join("\n") << "\n") }
-			File.open("#{@log}/hashes/cached_hashes_unqiue.txt", 'a') { |file| file.write(uniq_cachedump.join("\n") << "\n") }
-			File.open("#{@log}/hashes/memory_hashes_unique.txt", 'a') { |file| file.write(uniq_memdump.join("\n") << "\n") }
-			File.open("#{@log}/hashes/all_hashes_byhost.txt", 'a') { |file| file.write(total_hashes) }
-		rescue
-			print_bad("#{host}: Issues Writing to #{@log}")
-		end
+		write_file(uniq_hashdump.join("\n") << "\n", "local_hashes_unique.txt", "#{@log}/hashes/")
+		write_file(uniq_cachedump.join("\n") << "\n", "cached_hashes_unique.txt", "#{@log}/hashes/")
+		write_file(uniq_memdump.join("\n") << "\n", "memory_hashes_unique.txt", "#{@log}/hashes/")
+		write_file(total_hashes, "all_hashes_by_host.txt", "#{@log}/hashes/")
 
 		puts
 		puts "Total unqiue hashes"

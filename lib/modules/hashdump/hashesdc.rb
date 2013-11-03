@@ -163,24 +163,9 @@ class Hashesdc < Poet::Scanner
 							folder = Time.now.strftime('%m-%d-%Y_%H-%M')
 
 							# Check if files already exist
-							if File.exist?("#{local_drop}/ntds.dit")
-								rename = "#{Time.now}_ntds.dit"
-								rename_file("#{local_drop}/ntds.dit", "#{local_drop}/#{rename}")
-								print_warning("#{host.ljust(15)} - ntds.dit already exists, renamed existing one...")
-							end
-
-							if File.exist?("#{local_drop}/sys")
-								rename = "#{Time.now}_sys"
-								rename_file("#{local_drop}/sys", "#{local_drop}/#{rename}")
-								print_warning("#{host.ljust(15)} - sys already exists, renamed existing one...")
-							end
-
-							if folder_exists("#{local_drop}/ntds.dit.export")
-								rename = "#{Time.now}_ntds.dit.export"
-								rename_file("#{local_drop}/ntds.dit.export", "#{local_drop}/#{rename}")
-								print_warning("#{host.ljust(15)} - ntds.dit.export already exists, renamed existing one...")
-
-							end
+							backup_file("#{local_drop}/ntds.dit")
+							backup_file("#{local_drop}/sys")
+							backup_file("#{local_drop}/ntds.dit.export")
 
 							ntdsthread = Thread.new do
 								# Copy files to local sysstem

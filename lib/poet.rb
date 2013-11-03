@@ -213,31 +213,35 @@ class Poet
 									unless Menu.opts[:domain].eql? '.'
 										# Lock threads with mutex and ask user what they would like to do when login failure occurs
 										mutex.synchronize do
-											unless continue
-												pause = true
 
-												# Sleep a little to let other threads finish up a little to make it eaiser to read
-												sleep 5
+											# Temp if to appease eric for now, add config later
+											unless first_pause_done
+												unless continue
+													pause = true
 
-												selection = ''
-												until selection =~ /^(s|a|c)$/
-													print "    [s]kip account #{highlight(work_unit[0])}, [a]bort scan, or [c]ontinue and ignore failures?"
-													selection = rgets(' : ').downcase
+													# Sleep a little to let other threads finish up a little to make it eaiser to read
+											#		sleep 5
+
+													selection = ''
+													until selection =~ /^(s|a|c)$/
+														print "    [s]kip account #{highlight(work_unit[0])}, [a]bort scan, or [c]ontinue and ignore failures?"
+														selection = rgets(' : ').downcase
+													end
+
+													case selection
+													when "s"
+														# Clear out current queue containing account with login issues
+														queue.clear
+													when "a"
+														# Clear out current queue and set die to true to break loop for queues array
+														queue.clear
+														die = true
+													when "c"
+														# continue on and 
+														continue = true
+													end
+													pause = false
 												end
-
-												case selection
-												when "s"
-													# Clear out current queue containing account with login issues
-													queue.clear
-												when "a"
-													# Clear out current queue and set die to true to break loop for queues array
-													queue.clear
-													die = true
-												when "c"
-													# continue on and 
-													continue = true
-												end
-												pause = false
 											end
 										end
 									end
@@ -309,7 +313,7 @@ class Poet
 
 		# Testing removal of auth file
 		stderr_bins = capture_stderr_poet(Thread.current.object_id) do
-			options = %Q{-U "#{@bin_creds}" #{options}}
+			options = %Q{-U '#{@bin_creds}' #{options}}
 			if command
 				result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options} '#{command}'`}
 			else
@@ -329,7 +333,7 @@ class Poet
 			raise ServiceStartError, "Winexe service failed to start"
 		elsif error_check =~ /NT_STATUS_ACCESS_DENIED/ or error_check =~ /NT_STATUS_NET_WRITE_FAULT/
 			raise NoAccess, "does not have required permissions"
-		elsif error_check =~ /NT_STATUS_OBJECT_PATH_NOT_FOUND/
+		elsif error_check =~ /NT_STATUS_OBJECT_PATH_NOT_FOUND/ or error_check =~ /NT_STATUS_OBJECT_NAME_NOT_FOUND/
 			raise NetError, "path not found"
 		elsif error_check =~ /NT_STATUS_CONNECTION_REFUSED/
 			raise NetError, "SMB ports appear closed"
