@@ -329,7 +329,7 @@ class Poet
 			raise LogonError
 		elsif error_check =~ /NT_STATUS_ACCOUNT_LOCKED_OUT/
 			raise LockOutError, "locked out"
-		elsif error_check =~ /status=0x00000001/
+		elsif error_check =~ /status=0x00000001/ or error_check =~ /Error: error Creating process() 87/
 			raise ServiceStartError, "Winexe service failed to start"
 		elsif error_check =~ /NT_STATUS_ACCESS_DENIED/ or error_check =~ /NT_STATUS_NET_WRITE_FAULT/
 			raise NoAccess, "does not have required permissions"
