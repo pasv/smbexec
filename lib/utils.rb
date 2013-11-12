@@ -11,7 +11,7 @@ begin
 rescue LoadError => e
 	puts e
 	puts
-	puts "Load error: Make sure the Ruby gems are isntalled properly, run bundle install"
+	puts "Load error: Make sure the Ruby gems are installed properly, run bundle install"
 	puts
 	exit!
 end
