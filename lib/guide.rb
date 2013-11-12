@@ -40,6 +40,8 @@ class Guide < Menu
 			Menu.opts[:wcedump] = config['wcedump'] || false
 			Menu.opts[:nmap] = config['nmap'] || false
 			Menu.opts[:module_description] = config['module_description'] || false
+      Menu.opts[:crt] = config['crt'] || false
+      Menu.opts[:key] = config['key'] || false
 
 			if options[:hosts]
 				Menu.opts[:hosts] = parse_addr(options[:hosts])

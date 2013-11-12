@@ -56,3 +56,7 @@ dependancies:
 # Optional crypter.exe for payload packing/protecting
 # http://nullsecurity.net/tools/binary.html
 #  crypter: /opt/Hyperion-1.0/crypter.exe
+
+#SSL Certs
+crt: ./certs/server.crt
+key: ./certs/server.key
