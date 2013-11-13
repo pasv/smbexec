@@ -53,10 +53,10 @@ dependancies:
   ntdspwdump:     ./progs/ntdspwdump.py
   dsusers:        /opt/NTDSXtract/dsusers.py
 
+  #SSL Certs
+  crt:            ./certs/server.crt
+  key:            ./certs/server.key
+
 # Optional crypter.exe for payload packing/protecting
 # http://nullsecurity.net/tools/binary.html
 #  crypter: /opt/Hyperion-1.0/crypter.exe
-
-#SSL Certs
-crt: ./certs/server.crt
-key: ./certs/server.key

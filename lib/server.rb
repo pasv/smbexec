@@ -7,8 +7,12 @@ class Server
   module Info
 
     def get_url
-      print "Enter the web url [#{color_banner('http(s)://192.168.1.1:8080')}] : "
-      url = rgets
+      print "Enter the web url [#{color_banner("http(s)://#{local_ip}:8080")}] :"
+      url = rgets.downcase
+      unless url[0..6] == 'http://' or url[0..7] == 'https://'
+        print_bad('Missing http(s)://')
+        get_url
+      end
       return url
     end
 
@@ -42,8 +46,8 @@ class Server
   def ssl_setup(host,port)
     tcp_server = TCPServer.new(host,port)
     ctx = OpenSSL::SSL::SSLContext.new
-    ctx.cert = OpenSSL::X509::Certificate.new(File.open(Menu.opts[:crt]))
-    ctx.key = OpenSSL::PKey::RSA.new(File.open(Menu.opts[:key]))
+    ctx.cert = OpenSSL::X509::Certificate.new(File.open(Menu.extbin[:crt]))
+    ctx.key = OpenSSL::PKey::RSA.new(File.open(Menu.extbin[:key]))
     server = OpenSSL::SSL::SSLServer.new tcp_server, ctx
     return server
   rescue => error
@@ -86,12 +90,12 @@ class Server
     loop{
       Thread.start(server.accept) do |client|
         file_name = client.gets
-        print_good("Got #{file_name.strip} file!")
-        print_status("Getting Data")
+        vprint_good("Got #{file_name.strip} file!")
+        vprint_status("Getting Data")
         out_put = client.gets
-        print_status("Writing to File")
+        vprint_status("Writing to File")
         write_file(out_put, "results_#{self.class}_#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
-        print_good("File Done!")
+        vprint_good("File Done!")
         puts "Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
       end
     }
