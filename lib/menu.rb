@@ -172,6 +172,10 @@ class Menu
 		gets
 	end
 
+  def generate_ssl
+    `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout #{APP_ROOT}/certs/server.key -out #{APP_ROOT}/certs/server.crt`
+  end
+
 	# Blank def incase no override
 	def exit; end
 
