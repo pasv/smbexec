@@ -82,10 +82,10 @@ class Server
 
   def raw_upload(host,port,ssl=nil)
     if ssl
-      print_status("Starting SSL Server!")
+      print_status("Started SSL Server!")
       server = ssl_setup(host,port.to_i)
     else
-      print_status("Starting Server!")
+      print_status("Started Server!")
       server = TCPServer.open(port.to_i)
     end
     loop{
@@ -97,7 +97,7 @@ class Server
         vprint_status("Writing to File")
         write_file(out_put, "results_#{self.class}_#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
         vprint_good("File Done!")
-        puts "Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
+        puts "Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
       end
     }
   end
