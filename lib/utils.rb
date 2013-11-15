@@ -19,8 +19,10 @@ end
 module Utils
 
 	# Because lazy, quick readline function
-	def rgets(prompt = ' ')
-		Readline.readline("#{prompt}", true)
+	def rgets(prompt = ' ', default_value = '')
+		line = Readline.readline("#{prompt}", true)
+		line = default_value if line.empty?
+		return line
 	end
 
 	# Open IO to save stderr
