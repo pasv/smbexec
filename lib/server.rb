@@ -7,9 +7,7 @@ class Server
   module Info
 
     def get_url
-      print "Enter the web url [#{color_banner("http(s)://#{local_ip}:8080")}] :"
-      url = rgets.downcase
-      url = "https://#{local_ip}:8080" if url.empty?
+      url =  rgets("Enter the web url [#{color_banner("http(s)://#{local_ip}:8080")}] :", "https://#{local_ip}:8080")
       unless url[0..6] == 'http://' or url[0..7] == 'https://'
         print_bad('Missing http(s)://')
         get_url

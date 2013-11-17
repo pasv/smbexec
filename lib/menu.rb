@@ -173,7 +173,27 @@ class Menu
 	end
 
   def generate_ssl
-    `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout #{APP_ROOT}/certs/server.key -out #{APP_ROOT}/certs/server.crt`
+    puts color_header("Create Certificates\n")
+
+    country = rgets("Enter country #{color_banner('US')} : ", "US")
+    state = rgets("Enter state #{color_banner('Denial')} : ", "Denial")
+    city = rgets("Enter city #{color_banner('Goawaysville')} : ", "Goawaysville")
+    org = rgets("Enter orginization #{color_banner('Legitimate Web Traffic Inc')} : ", "Legitimate Web Traffic Inc")
+    cn = rgets("Enter website #{color_banner('Goawaysville.com')} : ", "Goawaysville.com")
+
+    cert_cmd = "openssl req -x509 -nodes -days 365 -newkey rsa:2048  -subj "
+    cert_cmd << "/C='#{country}'/ST='#{state}'/L='#{city}'/O='#{org}'/CN='#{cn}' "
+    cert_cmd << "-keyout #{APP_ROOT}/certs/server.key -out #{APP_ROOT}/certs/server.crt"
+    cert_create_result = system(cert_cmd)
+
+    if cert_create_result
+      print_good("New certificates created, press enter to return to options menu")
+    else
+      print_bad("Error creating certifications, press enter to return to options menu")
+    end
+
+    gets
+
   end
 
 	# Blank def incase no override
