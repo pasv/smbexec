@@ -45,9 +45,10 @@ class Options < Menu
 		options << "1. Save State"
 		options << "2. Load State"
 		options << "3. Set Thread Count"
-		sm = Menu.opts[:stealth] ? "4. Leave Stealth Mode" : "4. Enter Stealth Mode"
+    options << "4. Generate SSL Cert"
+		sm = Menu.opts[:stealth] ? "5. Leave Stealth Mode" : "5. Enter Stealth Mode"
 		options << sm
-		options << "5. About"
+		options << "6. About"
 		self.main_menu(options)
 	end
 
@@ -78,11 +79,13 @@ class Options < Menu
 					print "Threads set to #{color_banner(Menu.opts[:threads])}, Press enter to Return to the Menu"
 					gets
 				}
-			when "4"
+      when "4"
+        catch_sig {generate_ssl}
+      when "5"
 				Menu.opts[:stealth] = !Menu.opts[:stealth]
-			when "5"
-				catch_sig {about}
 			when "6"
+				catch_sig {about}
+			when "7"
 				exit
 				return
 			else
