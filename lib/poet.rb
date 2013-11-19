@@ -322,6 +322,7 @@ class Poet
 		end
 
 		stderr_bins ||= ""
+		result ||= ""
 
 		error_check = result + stderr_bins
 
