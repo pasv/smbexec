@@ -53,15 +53,24 @@ class Server
 		print_bad(error)
 	end
 
+  def start_server(host,port,ssl)
+
+    if ssl
+      print_status("Started SSL Server")
+      server = ssl_setup(host,port.to_i)
+    else
+      print_status("Started Server")
+      server = TCPServer.open(port.to_i)
+    end
+    return server
+
+  rescue  Errno::EADDRINUSE
+    print_bad('Socket already in use')
+  end
+
 	def raw_web(host,port,body,ssl=nil)
 		time = Time.now.localtime.strftime("%a %d %b %Y %H:%M:%S %Z")
-		if ssl
-			print_status("Started SSL Server")
-			server = ssl_setup(host,port.to_i)
-		else
-			print_status("Started Server")
-			server = TCPServer.open(port.to_i)
-		end
+    server = start_server(host,port,ssl)
 		loop {
 			Thread.start(server.accept) do |client|
 				print_status("Client Connected")
@@ -79,13 +88,7 @@ class Server
 	end
 
 	def raw_upload(host,port,ssl=nil)
-		if ssl
-			print_status("Started SSL Server")
-			server = ssl_setup(host,port.to_i)
-		else
-			print_status("Started Server")
-			server = TCPServer.open(port.to_i)
-		end
+    server = start_server(host,port,ssl)
 		loop{
 			Thread.start(server.accept) do |client|
 				file_name = client.gets
@@ -93,10 +96,27 @@ class Server
 				vprint_status("Getting Data")
 				out_put = client.gets
 				vprint_status("Writing to File")
-				write_file(out_put, "results_#{self.class}_#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
+				write_file(out_put, "results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
 				print_good("File Done Uploading")
 				puts "Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
 			end
 		}
-	end
+  end
+
+  def base64_upload(host,port,ssl=nil)
+    @server = start_server(host,port,ssl)
+    loop{
+      Thread.start(@server.accept) do |client|
+        file_name = client.gets
+        vprint_good("Got #{file_name.strip} file")
+        vprint_status("Getting Data")
+        out_put = client.gets
+        vprint_status("Writing to File")
+        write_file(Base64.decode64(out_put), "results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
+        print_good("File Done Uploading")
+        puts "Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
+      end
+    }
+  end
+
 end
