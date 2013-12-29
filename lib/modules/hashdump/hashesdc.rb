@@ -122,8 +122,8 @@ class Hashesdc < Poet::Scanner
 
 				space = winexe(smboptions, "CMD /C dir #{@ntds_drive}#{@ntds}\\ntds.dit")
 
-				free = /Dir\(s\)\s+([0-9,]+)\sbytes free/m.match(space)[1]
-				file_size = /File\(s\)\s+([0-9,]+)\s+bytes/m.match(space)[1]
+				free = /Dir\(s\)\s+([0-9,\.]+)\sbytes free/m.match(space)[1]
+				file_size = /File\(s\)\s+([0-9,\.]+)\s+bytes/m.match(space)[1]
 				file_size = file_size.gsub!(/,/, '')
 				if free.gsub!(/,/, '').to_i > file_size.to_i
 
