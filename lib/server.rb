@@ -43,29 +43,37 @@ class Server
 	end
 
 	def ssl_setup(host,port)
-		tcp_server = TCPServer.new(host,port)
+
+    tcp_server = TCPServer.new(host,port)
 		ctx = OpenSSL::SSL::SSLContext.new
 		ctx.cert = OpenSSL::X509::Certificate.new(File.open(Menu.extbin[:crt]))
 		ctx.key = OpenSSL::PKey::RSA.new(File.open(Menu.extbin[:key]))
 		server = OpenSSL::SSL::SSLServer.new tcp_server, ctx
 		return server
-	rescue => error
-		print_bad(error)
+
 	end
 
   def start_server(host,port,ssl)
 
     if ssl
       print_status("Started SSL Server")
-      server = ssl_setup(host,port.to_i)
+      @server = ssl_setup(host,port.to_i)
     else
       print_status("Started Server")
-      server = TCPServer.open(port.to_i)
+      @server = TCPServer.open(port.to_i)
     end
-    return server
 
   rescue  Errno::EADDRINUSE
-    print_bad('Socket already in use')
+    print_status("re-opening socket")
+    @server.closed
+    @server = TCPServer.open(port.to_i)
+
+  return @server
+
+  end
+
+  def print_client(client)
+    print_status("#{client.peeraddr[3]} Connected")
   end
 
 	def raw_web(host,port,body,ssl=nil)
@@ -73,7 +81,7 @@ class Server
     server = start_server(host,port,ssl)
 		loop {
 			Thread.start(server.accept) do |client|
-				print_status("Client Connected")
+        print_client(client)
 				headers = ["HTTP/1.1 200 OK",
 									 "Date: #{time}",
 									 "Server: Ruby",
@@ -91,14 +99,15 @@ class Server
     server = start_server(host,port,ssl)
 		loop{
 			Thread.start(server.accept) do |client|
-				file_name = client.gets
+        print_client(client)
+        file_name = client.gets
 				vprint_good("Got #{file_name.strip} file")
 				vprint_status("Getting Data")
 				out_put = client.gets
 				vprint_status("Writing to File")
 				write_file(out_put, "results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
-				print_good("File Done Uploading")
-				puts "Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
+        vprint_status("File Done Uploading")
+				print_good("Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
 			end
 		}
   end
@@ -107,14 +116,15 @@ class Server
     @server = start_server(host,port,ssl)
     loop{
       Thread.start(@server.accept) do |client|
+        print_client(client)
         file_name = client.gets
         vprint_good("Got #{file_name.strip} file")
         vprint_status("Getting Data")
         out_put = client.gets
         vprint_status("Writing to File")
         write_file(Base64.decode64(out_put), "results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
-        print_good("File Done Uploading")
-        puts "Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
+        vprint_status("File Done Uploading")
+        print_good("Output can be found in #{Menu.opts[:log]}/results_#{self.class}_#{file_name.strip}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
       end
     }
   end

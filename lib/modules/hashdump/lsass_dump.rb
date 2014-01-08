@@ -32,12 +32,12 @@ class LsassDump < Poet::Scanner
     # Print title
     puts
     title = "Lsass Dumper"
-
+    @timeout = 30 + @timeout if @timeout < 90
     server = Server.new
-    host = rgets("Would you like to host the payload on a web server? [#{color_banner('n')}|#{color_banner('y')}] : ", "n")
+    host = rgets("Would you like to host the payload on a web server? [#{color_banner('y')}|#{color_banner('n')}] : ", "y")
     lhost, lport = get_meter_data
     print_warning('SSL is very slow uploading')
-    ssl = rgets("Use SSL for file transfer? [#{color_banner('n')}|#{color_banner('y')}] : ", "n")
+    ssl = rgets("Use SSL for file transfer? [#{color_banner('y')}|#{color_banner('n')}] : ", "y")
     if ssl == 'y'
       ssl = true
     else
