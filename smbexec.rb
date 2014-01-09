@@ -2,6 +2,7 @@
 
 raise 'Must run as root' unless Process.uid == 0 or Process.euid == 0
 
+require 'yaml'
 require 'optparse'
 options = {}
 optparse = OptionParser.new do |opts|
@@ -47,6 +48,10 @@ optparse = OptionParser.new do |opts|
 	opts.on('-l' , '--log <LOG_DIR>', 'Directory to log to' ) do |log|
 		options[:log] = File.absolute_path(log)
 	end
+
+  opts.on('-D' , '--database <databse_name>', 'SQLite3 database name' ) do |db|
+    options[:database] = db
+  end
 
 	opts.on('-t' , '--threads <NUM_THREADS>','Number of threads to use' ) do |threads|
 		threads = 1 if threads.eql? '0' 

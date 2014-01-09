@@ -109,8 +109,18 @@ class HashesWorkstation < Poet::Scanner
 		rescue
 			vprint_bad("#{host.ljust(15)} - Issues extracing hashes from hives")
 		end
-	
-	
+
+    # insert hashdump to database
+    hashdump.split("\n").each do |line|
+      user = line.split(':')[0]
+      lm = line.split(':')[2]
+      nt = line.split(':')[3]
+      @connection.insert(:host => host,
+                         :username => user,
+                         :lm_hash => lm,
+                         :nt_hash => nt)
+    end
+
 		# run cachedump.py
 		cachedcreds = ''
 		type = ''
@@ -130,7 +140,15 @@ class HashesWorkstation < Poet::Scanner
 			full_print_line << "#{highlight_red('0')} Cached, ".ljust(10)
 		end
 
-		wcedump = ''
+    # insert cachedump into the database
+    cachedcreds.split("\n").each do |line|
+      user = line.split(':')[0]
+      hash = line.split(':')[1]
+      @connection.insert(:host => host,
+                         :username => user,
+                         :cached_hash =>  hash)
+	  end
+      wcedump = ''
 		# Dump with WCE if set in config
 		if @wce
 			wcedump = wce(username, password, host)
@@ -140,6 +158,15 @@ class HashesWorkstation < Poet::Scanner
 				full_print_line << "#{highlight_red('0')} in Memory".ljust(10)
 			end
 		end
+
+    #  insert wce into the database
+    wcedump.split("\n").each do |line|
+      user = line.split(':')[0]
+      clear_password = line.gsub(user,'')
+      @connection.insert(:host => host,
+                         :username => user,
+                         :clear_text_password =>  clear_password)
+    end
 
 		print_good("#{host.ljust(15)} - Found #{full_print_line}") if has_hashes
 

@@ -46,9 +46,10 @@ class Options < Menu
 		options << "2. Load State"
 		options << "3. Set Thread Count"
 		options << "4. Generate SSL Cert"
-		sm = Menu.opts[:stealth] ? "5. Leave Stealth Mode" : "5. Enter Stealth Mode"
+    options << "5. Database Shell"
+		sm = Menu.opts[:stealth] ? "6. Leave Stealth Mode" : "6. Enter Stealth Mode"
 		options << sm
-		options << "6. About"
+		options << "7. About"
 		self.main_menu(options)
 	end
 
@@ -81,11 +82,29 @@ class Options < Menu
 				}
 			when "4"
 					catch_sig {generate_ssl}
-			when "5"
-				Menu.opts[:stealth] = !Menu.opts[:stealth]
+      when "5"
+        require 'database'
+        catch_sig {
+          puts "Type exit to exit"
+          @connection = SQLiteDatabase.new("#{Menu.opts[:database]}")
+          loop {
+            begin
+              query = rgets("sqlite> ")
+              next if query.chomp == ''
+              break if query.chomp == 'exit'
+              results = @connection.execute(query.chomp)
+              results.each {|row| puts row.join("\s")}
+            rescue => e
+              print_bad(e)
+              next
+            end
+          }
+        }
 			when "6"
-				catch_sig {about}
+				Menu.opts[:stealth] = !Menu.opts[:stealth]
 			when "7"
+				catch_sig {about}
+			when "8"
 				exit
 				return
 			else

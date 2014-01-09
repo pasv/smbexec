@@ -29,6 +29,9 @@ nmap: true
 # Set to true for more detailed logs within the debug folder
 debug_mode: false
 
+#  Set Database name
+database: smbexec_db
+
 # Stealth mode settings, enforces one thread, randomize hosts, and adds random time delays between hosts scanned
 stealth_mode:
   # Time in seconds

@@ -31,7 +31,7 @@ class Guide < Menu
 			log_dir = options[:log] || config['log']
 
 			Menu.opts[:log] = "#{APP_ROOT}\/log\/smbexec-#{time.year}-#{time.month}-#{time.day}"
-
+      Menu.opts[:database] = options[:database] || config['database']
 			Menu.opts[:verbose] = options[:verbose] || config['verbose']
 			Menu.opts[:domain] = options[:domain] || config['domain']
 			Menu.opts[:threads] = options[:threads] || config['threads']

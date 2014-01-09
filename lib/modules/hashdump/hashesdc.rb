@@ -251,7 +251,19 @@ class Hashesdc < Poet::Scanner
 									empty_hash = "aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0"
 									ntdspwdump = ntdspwdump.split("\n").delete_if {|line| line.strip.eql? empty_hash }
 									ntdspwdump = ntdspwdump.join("\n")
-									
+
+                  # insert ntdspwdump into database
+
+                  ntdspwdump.split("\n").each do |line|
+                    user = line.split(':')[0]
+                    lm = line.split(':')[2]
+                    nt = line.split(':')[3]
+                    @connection.insert(:host => host,
+                                       :username => user,
+                                       :lm_hash => lm,
+                                       :nt_hash => nt)
+                  end
+
 									# Get number of hashes
 									@success[host] = ntdspwdump.lines.count
 
