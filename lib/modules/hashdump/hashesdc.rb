@@ -136,7 +136,7 @@ class Hashesdc < Poet::Scanner
 					# Check if created, get volume name and copy the ntds.dit
 					if vss_create =~ /Successfully created shadow copy for/m
 
-						# Rip out id and name for shadow c opy
+						# Rip out id and name for shadow copy
 						vss_volume_id = /Shadow Copy ID: ({.*})/.match(vss_create)[1]
 						vss_volume_name = /Shadow Copy Volume Name: (.*)\s/.match(vss_create)[1].chomp
 					
