@@ -54,8 +54,7 @@ class Poet
                               :lm_hash => 'text',
                               :nt_hash => 'text',
                               :cached_hash => 'text',
-                              :clear_text_password => 'text'
-                              )
+                              :clear_text_password => 'text')
 			# Instance variables to keep track of success/failed
 			@failed = 0
 			@success = 0
