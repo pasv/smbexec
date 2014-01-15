@@ -162,7 +162,7 @@ class HashesWorkstation < Poet::Scanner
     #  insert wce into the database
     wcedump.split("\n").each do |line|
       user = line.split(':')[0]
-      clear_password = line.gsub(user,'')
+      clear_password = line.gsub("#{user}:",'')
       @connection.insert(:host => host,
                          :username => user,
                          :clear_text_password =>  clear_password)
