@@ -255,7 +255,7 @@ class Hashesdc < Poet::Scanner
                   # insert ntdspwdump into database
 
                   ntdspwdump.split("\n").each do |line|
-                    user,lm,nt = line.split(':')
+                    user,id,lm,nt = line.split(':')
                     @connection.insert(:host => host,
                                        :username => user,
                                        :lm_hash => lm,

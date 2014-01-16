@@ -112,7 +112,7 @@ class HashesWorkstation < Poet::Scanner
 
     # insert hashdump to database
     hashdump.split("\n").each do |line|
-      user,lm,nt = line.split(':')
+      user,id,lm,nt = line.split(':')
       @connection.insert(:host => host,
                          :username => user,
                          :lm_hash => lm,
