@@ -239,7 +239,7 @@ module Lib_meta
 
 		sleep 1
 
-		cmd = "#{Menu.extbin[:crypter]} #{payload} #{new_path}"
+		cmd = "wine #{Menu.extbin[:crypter]} #{payload} #{new_path}"
 
 		# Need to run the crypter from its dir due to dependencies
 		Dir.chdir(File.dirname(Menu.extbin[:crypter])) do
