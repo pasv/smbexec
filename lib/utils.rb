@@ -415,7 +415,7 @@ class String
 
 	def to_ps_base64!
 		# Remove ISE chars
-		self.gsub!(/[\xef|\xbb|\xbf]/, '')
+		self.gsub!(/[\x00ef|\x00bb|\x00bf]/, '')
 		# Convert to base64 and add null character between each character
 		Base64.encode64(self.split('').join("\x00") << "\x00").gsub!("\n", '')
   end
