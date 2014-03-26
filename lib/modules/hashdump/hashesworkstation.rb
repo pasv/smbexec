@@ -136,7 +136,9 @@ class HashesWorkstation < Poet::Scanner
 			full_print_line << "#{highlight(cachedcreds.lines.count)} Cached, ".ljust(10)
 		else
 			full_print_line << "#{highlight_red('0')} Cached, ".ljust(10)
-		end
+    end
+
+    cachedcreds ||= ''
 
     # insert cachedump into the database
     cachedcreds.split("\n").each do |line|

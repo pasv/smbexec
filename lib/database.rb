@@ -26,7 +26,7 @@ class SQLCommands
   end
 
   def insert(values_hash={})
-    columns = [] 
+    columns = []
     values = []
     values_hash.map {|column,value| columns << column.to_s && values << value}
     self.prepare(columns,values)
@@ -52,14 +52,14 @@ class PGDatabase < SQLCommands
 
   def prepare(columns,values)
     value_place_holder = []
-    values.each_with_index {|_,index| value_place_holder << "$#{index+1}"}  
+    values.each_with_index {|_,index| value_place_holder << "$#{index+1}"}
     @con.prepare('insert',"insert into #{@table_name} (#{columns.join(',')}) values(#{value_place_holder.join(',')})")
     @con.exec_prepared('insert',[*values])
     self.execute("DEALLOCATE insert")
   end
-  
+
   def execute(sql_command)
-    @con.exec(sql_command)  
+    @con.exec(sql_command)
   end
 
   def import(file_array)
@@ -73,7 +73,7 @@ class SQLiteDatabase < SQLCommands
   def initialize(database)
     @con = SQLite3::Database.new database
   end
-  
+
   def execute(sql_command)
     @con.execute(sql_command)
   end
@@ -81,7 +81,7 @@ class SQLiteDatabase < SQLCommands
 end
 
 class MysqlDatabase < SQLCommands
-  
+
   def initialize(database,host,username,password=nil)
     @con = Mysql.new(hostname,username,password,database)
   end

@@ -84,21 +84,9 @@ class Options < Menu
 					catch_sig {generate_ssl}
       when "5"
         require 'database'
+        require 'sqlite_cli'
         catch_sig {
-          puts "Type exit to exit"
-          @connection = SQLiteDatabase.new("#{Menu.opts[:database]}")
-          loop {
-            begin
-              query = rgets("sqlite> ")
-              next if query.chomp == ''
-              break if query.chomp == 'exit'
-              results = @connection.execute(query.chomp)
-              results.each {|row| puts row.join("\s")}
-            rescue => e
-              print_bad(e)
-              next
-            end
-          }
+          Shell::SQLiteCLI.new
         }
 			when "6"
 				Menu.opts[:stealth] = !Menu.opts[:stealth]
