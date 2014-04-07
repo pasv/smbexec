@@ -58,11 +58,12 @@ module Shell
         when /^(show|export)\s$/
           puts 'missing args'
         when /^exit/
-          exit
+          return
         when /^(show|export) (.*)/
-          execute($1,$2)
+          exec($1,$2)
         when /^select (.*)/
-          @connection.execute("select #{$1}")
+          res = @connection.execute("select #{$1}")
+          res.each {|row| puts row.join("\s")}
         when /[^ ]/
           print_bad("command not found")
         end
@@ -72,20 +73,44 @@ module Shell
     private
 
     def help
-      puts "press tab to get a list of options available"
+      puts "You can combine show options to display certain results"
+      puts "Example: show host,username,lm_hash"
+      puts
+      puts "show"
+      puts "   all                    Displays entire database"
+      puts "   cached_hash            Displays domain cached hashes"
+      puts "   clear_text_password    Displays clear text passwords"
+      puts "   host                   Displays hosts where loot came from"
+      puts "   lm_hash                Displays lm hash"
+      puts "   nt_hash                Displays nt hash"
+      puts "   username               Displays username"
+      puts "export"
+      puts "   all                    Writes database to a log file"
+      puts "clear                     Clear screen"
+      puts "exit                      Exit"
+      puts "help                      This page"
     end
 
-    def execute(action,*args)
+    def exec(action,*args)
+      args = args.map(&:strip)
       if args.include?('all')
-        res = @connect.execute("select * from users")
+        res = @connection.execute("select * from users")
       else
-        res = @connect.execute("select #{args.join(',')} from users")
+        res = @connection.execute("select #{args.join(',')} from users")
       end
       if action == 'show'
-        puts res.join("\s")
+        res.each {|row| puts row.join("\s")}
       else
-        file_name = args[1]
-        write_file(res.join("\s"), "#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}")
+        file_name = "database_dump"
+        location  = "#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
+        print_status("Writing file to #{location}")
+        content = ''
+        res.map {|row| content << "#{row.join("\s")}\n"}
+        begin
+          write_file(content, location)
+        rescue IOError => e
+          print_bad("Error: #{e.message} could not write file")
+        end
       end
     end
   end
