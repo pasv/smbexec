@@ -49,12 +49,12 @@ class Poet
 
       @connection = SQLiteDatabase.new("#{Menu.opts[:database]}")
       @connection.create_table('users',
-                              :host => 'text',
-                              :username => 'text',
-                              :lm_hash => 'text',
-                              :nt_hash => 'text',
-                              :cached_hash => 'text',
-                              :clear_text_password => 'text')
+                               host: 'text',
+                               username: 'text',
+                               lm_hash: 'text',
+                               nt_hash: 'text',
+                               cached_hash: 'text',
+                               clear_text_password: 'text')
 			# Instance variables to keep track of success/failed
 			@failed = 0
 			@success = 0

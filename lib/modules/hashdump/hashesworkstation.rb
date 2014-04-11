@@ -113,10 +113,10 @@ class HashesWorkstation < Poet::Scanner
     # insert hashdump to database
     hashdump.split("\n").each do |line|
       user,id,lm,nt = line.split(':')
-      @connection.insert(:host => host,
-                         :username => user,
-                         :lm_hash => lm,
-                         :nt_hash => nt)
+      @connection.insert(host: host,
+                         username: user,
+                         lm_hash: lm,
+                         nt_hash: nt)
     end
 
 		# run cachedump.py
@@ -143,9 +143,9 @@ class HashesWorkstation < Poet::Scanner
     # insert cachedump into the database
     cachedcreds.split("\n").each do |line|
       user,hash = line.split(':')
-      @connection.insert(:host => host,
-                         :username => user,
-                         :cached_hash =>  hash)
+      @connection.insert(host: host,
+                         username: user,
+                         cached_hash:  hash)
 	  end
       wcedump = ''
 		# Dump with WCE if set in config
@@ -162,9 +162,9 @@ class HashesWorkstation < Poet::Scanner
     wcedump.split("\n").each do |line|
       user = line.split(':')[0]
       clear_password = line.gsub("#{user}:",'')
-      @connection.insert(:host => host,
-                         :username => user,
-                         :clear_text_password =>  clear_password)
+      @connection.insert(host: host,
+                         username: user,
+                         clear_text_password:  clear_password)
     end
 
 		print_good("#{host.ljust(15)} - Found #{full_print_line}") if has_hashes

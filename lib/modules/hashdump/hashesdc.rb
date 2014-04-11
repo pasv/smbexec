@@ -256,10 +256,10 @@ class Hashesdc < Poet::Scanner
 
                   ntdspwdump.split("\n").each do |line|
                     user,id,lm,nt = line.split(':')
-                    @connection.insert(:host => host,
-                                       :username => user,
-                                       :lm_hash => lm,
-                                       :nt_hash => nt)
+                    @connection.insert(host: host,
+                                       username: user,
+                                       lm_hash: lm,
+                                       nt_hash: nt)
                   end
 
 									# Get number of hashes
