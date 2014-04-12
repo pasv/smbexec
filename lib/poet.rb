@@ -162,6 +162,7 @@ class Poet
 						die = true
 
 						stars = '*' * 70
+            puts
 						puts "\e[1;34m#{stars}\e[0m"
 						puts "\e[1;34mSignal Interupt Detected, stopping threads\e[0m".center(70)
 						puts "\e[1;34m#{stars}\e[0m"
@@ -351,6 +352,8 @@ class Poet
 			raise NetError, "SMB ports appear closed"
 		elsif error_check =~ /BAD_NETWORK_NAME/
 			raise NetError, "Issues with path"
+    elsif error_check =~ /ERRDOS:ERRnomem/
+      raise ServiceStartError, "The target device is out of memory"
 		end
 
  		# Hack to get rid of the hashes added to stdout by 1.01 if a hash is used for auth.

