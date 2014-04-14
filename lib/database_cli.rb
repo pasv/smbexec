@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'utils'
 module Shell
-  PROMPT = 'sqlite> '
+  PROMPT = 'shell> '
   module InputCompletor
     CORE_WORDS = %w( clear help show exit export )
     SHOW_ARGS = %w( username clear_text_password
@@ -31,15 +31,21 @@ module Shell
       end
     end
   end
-  class SQLiteCLI
+  class DatabaseCLI
     include Utils
     Readline.completion_append_character = ' '
     Readline.completer_word_break_characters = "\x00"
     Readline.completion_proc = Shell::InputCompletor::COMPLETION_PROC
     def initialize
       puts 'Type exit to exit'
-      @connection = SQLiteDatabase.new("#{Menu.opts[:database]}")
-      while line = Readline.readline("#{PROMPT}", true)
+      @connection = Driver.new(Menu.opts[:driver]) do |db|
+        db.user = Menu.opts[:db_user]
+        db.pass = Menu.opts[:db_pass]
+        db.host = Menu.opts[:db_host]
+        db.port = Menu.opts[:db_port]
+        db.database = Menu.opts[:db_name]
+      end
+      while line == Readline.readline("#{PROMPT}", true)
         Readline::HISTORY.pop if /^\s*$/ =~ line
         begin
           Readline::HISTORY.pop if Readline::HISTORY[-2] == line

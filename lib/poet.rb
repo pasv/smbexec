@@ -4,7 +4,6 @@ require 'timeout'
 require 'logger'
 require 'open3'
 require 'database'
-require 'sqlite3'
 
 class Poet
 	include Utils
@@ -47,7 +46,13 @@ class Poet
 			@timeout = Menu.opts[:timeout]
 			@log = Menu.opts[:log]
 
-      @connection = SQLiteDatabase.new("#{Menu.opts[:database]}")
+      @connection = Driver.new(Menu.opts[:driver]) do |db|
+        db.user = Menu.opts[:db_user]
+        db.pass = Menu.opts[:db_pass]
+        db.host = Menu.opts[:db_host]
+        db.port = Menu.opts[:db_port]
+        db.database = Menu.opts[:db_name] 
+      end
       @connection.create_table('users',
                                host: 'text',
                                username: 'text',

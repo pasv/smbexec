@@ -86,7 +86,7 @@ class Options < Menu
         require 'database'
         require 'sqlite_cli'
         catch_sig {
-          Shell::SQLiteCLI.new
+          Shell::DatabaseCLI.new
         }
 			when "6"
 				Menu.opts[:stealth] = !Menu.opts[:stealth]

@@ -49,8 +49,28 @@ optparse = OptionParser.new do |opts|
 		options[:log] = File.absolute_path(log)
 	end
 
-  opts.on('-D' , '--database <databse_name>', 'SQLite3 database name' ) do |db|
-    options[:database] = db
+  opts.on('--db_driver <databse_driver>', 'Type of database [sqlite postgres mysql]' ) do |db_driver|
+    options[:driver] = db_driver
+  end
+
+  opts.on('--db_name <databse_name>', 'Database name' ) do |db_name|
+    options[:db_name] = db_name
+  end
+
+  opts.on('--db_user <databse_user>', 'Database user' ) do |db_user|
+    options[:db_user] = db
+  end
+
+  opts.on('--db_pass <databse_pass>', 'Database password' ) do |db_pass|
+    options[:db_pass] = db_pass
+  end
+
+  opts.on('--db_host <databse_host>', 'Database host' ) do |db_host|
+    options[:db_host] = db_host
+  end
+
+  opts.on('--db_port <databse_port>', 'Database port' ) do |db_port|
+    options[:db_port] = db_port
   end
 
 	opts.on('-t' , '--threads <NUM_THREADS>','Number of threads to use' ) do |threads|
