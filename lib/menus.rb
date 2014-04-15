@@ -84,9 +84,9 @@ class Options < Menu
 					catch_sig {generate_ssl}
       when "5"
         require 'database'
-        require 'sqlite_cli'
+        require 'database_cli'
         catch_sig {
-          Shell::SQLiteCLI.new
+          Shell::DatabaseCLI.new
         }
 			when "6"
 				Menu.opts[:stealth] = !Menu.opts[:stealth]

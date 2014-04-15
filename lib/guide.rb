@@ -31,7 +31,13 @@ class Guide < Menu
 			log_dir = options[:log] || config['log']
 
 			Menu.opts[:log] = "#{APP_ROOT}\/log\/smbexec-#{time.year}-#{time.month}-#{time.day}"
-      Menu.opts[:database] = options[:database] || config['database']
+      database = config['database']
+      Menu.opts[:driver] = options[:driver] || database['driver']
+      Menu.opts[:db_name] = options[:db_name] || database['name']
+      Menu.opts[:db_user] = options[:db_user] || database['user']
+      Menu.opts[:db_pass] = options[:db_pass] || database['pass']
+      Menu.opts[:db_host] = options[:db_host] || database['host']
+      Menu.opts[:db_port] = options[:db_port] || database['port']
 			Menu.opts[:verbose] = options[:verbose] || config['verbose']
 			Menu.opts[:domain] = options[:domain] || config['domain']
 			Menu.opts[:threads] = options[:threads] || config['threads']
