@@ -58,7 +58,7 @@ optparse = OptionParser.new do |opts|
   end
 
   opts.on('--db_user <databse_user>', 'Database user' ) do |db_user|
-    options[:db_user] = db
+    options[:db_user] = db_user
   end
 
   opts.on('--db_pass <databse_pass>', 'Database password' ) do |db_pass|

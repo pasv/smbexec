@@ -2,6 +2,9 @@
 require 'utils'
 module Shell
   PROMPT = 'shell> '
+  # Module that holds all the auto complete information.
+  # More options are easy by adding to an existing array,
+  # or creating a new one.
   module InputCompletor
     CORE_WORDS = %w( clear help show exit export )
     SHOW_ARGS = %w( username clear_text_password
@@ -31,6 +34,7 @@ module Shell
       end
     end
   end
+  # Main class that is called to loop through the cli.
   class DatabaseCLI
     include Utils
     Readline.completion_append_character = ' '
@@ -38,14 +42,14 @@ module Shell
     Readline.completion_proc = Shell::InputCompletor::COMPLETION_PROC
     def initialize
       puts 'Type exit to exit'
-      @connection = Driver.new(Menu.opts[:driver]) do |db|
+      @connection = SQL::Driver.new(Menu.opts[:driver]) do |db|
         db.user = Menu.opts[:db_user]
         db.pass = Menu.opts[:db_pass]
         db.host = Menu.opts[:db_host]
         db.port = Menu.opts[:db_port]
         db.database = Menu.opts[:db_name]
       end
-      while line == Readline.readline("#{PROMPT}", true)
+      while line = Readline.readline("#{PROMPT}", true)
         Readline::HISTORY.pop if /^\s*$/ =~ line
         begin
           Readline::HISTORY.pop if Readline::HISTORY[-2] == line
@@ -65,7 +69,7 @@ module Shell
           exec($1,$2)
         when /^select (.*)/
           res = @connection.execute("select #{$1}")
-          res.each { |row| puts row.join("\s") }
+          print_rows(res)
         when /[^ ]/
           print_bad('command not found')
         end
@@ -100,19 +104,48 @@ module Shell
       else
         res = @connection.execute("select #{args.join(',')} from users")
       end
-      if action == 'show'
-        res.each { |row| puts row.join("\s") }
-      else
-        file_name = 'database_dump'
-        location  = "#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
-        print_status("Writing file to #{location}")
-        content = ''
-        res.map { |row| content << "#{row.join("\s")}\n" }
-        begin
-          write_file(content, location)
-        rescue IOError => e
-          print_bad("Error: #{e.message} could not write file")
+      case action
+      when 'show'
+        print_rows(res)
+      when 'export'
+        dump_db(res)
+      end
+    rescue => e
+      print_bad(e)
+    end
+
+    def print_rows(res)
+      if res.class.to_s =~ /PG::Result/
+        res.each do |row|
+          row.each do |key, value|
+            print "#{value} "
+          end
+          puts
         end
+      else
+        res.each { |row| puts row.join("\s") }
+      end
+    end
+
+    def dump_db(res)
+      file_name = 'database_dump'
+      location  = "#{file_name}_#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
+      print_status("Writing file to #{location}")
+      content = ''
+      if res.class.to_s =~ /PG::Result/
+        res.each do |row|
+          row.each do |key, value|
+            content << "#{value} "
+          end
+          content << "\n"
+        end
+      else
+        res.map { |row| content << "#{row.join("\s")}\n" }
+      end
+      begin
+        write_file(content, location)
+      rescue IOError => e
+        print_bad("Error: #{e.message} could not write file")
       end
     end
   end

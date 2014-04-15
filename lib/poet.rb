@@ -46,7 +46,7 @@ class Poet
 			@timeout = Menu.opts[:timeout]
 			@log = Menu.opts[:log]
 
-      @connection = Driver.new(Menu.opts[:driver]) do |db|
+      @connection = SQL::Driver.new(Menu.opts[:driver]) do |db|
         db.user = Menu.opts[:db_user]
         db.pass = Menu.opts[:db_pass]
         db.host = Menu.opts[:db_host]

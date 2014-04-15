@@ -84,7 +84,7 @@ class Options < Menu
 					catch_sig {generate_ssl}
       when "5"
         require 'database'
-        require 'sqlite_cli'
+        require 'database_cli'
         catch_sig {
           Shell::DatabaseCLI.new
         }

@@ -4,3 +4,5 @@ gem 'nokogiri', '1.5.5'
 gem 'netaddr', '1.5.0'
 gem 'ruby-nmap'
 gem 'sqlite3'
+# Install PG gem for postgres
+# gem 'pg'
