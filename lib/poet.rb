@@ -313,7 +313,7 @@ class Poet
 
 		# Testing removal of auth file
 		stderr_bins = capture_stderr_poet(Thread.current.object_id) do
-			options = %Q{-U '#{@bin_creds}' #{options}}
+			options = %Q{-U "#{@bin_creds}" #{options}}
 			if command
 				result = log("#{bin} #{options} '#{command}'") {`#{bin} #{options} '#{command}'`}
 			else
