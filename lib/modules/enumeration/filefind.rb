@@ -30,8 +30,20 @@ class Filefind < Poet::Scanner
 		@timeout = 0
 		@regexes = Array.new
 		
-		print "Enter path to newline separated file containing filenames to search for, or enter in comma separated files in the form of regular expressions. (Substitutions exist for commonly useful filetypes and extensions:\n#{color_banner('%OFFICE%')} : .*xls$, .*csv$, .*doc$, .*docx$, .*pdf$\n#{color_banner('%PASSWORD%')} : accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$\n#{color_banner('%KEYFILES%')} : .*kbdx$, .*ppk$, id_rsa, .*pem$, .*crt$, .*key$\n#{color_banner('%CONFIG%')} : .*cfg$, .*inf$, .*ini$, .*config$, .*conf$, .*setup$, .*cnf$, pref.*xml$, .*preferences$, .*properties$\n#{color_banner('%BATCH%')} : .*bat$, .*sh$, .*ps$, .*ps1$, .*vbs$, .*run$\n#{color_banner('%MAIL%')} : .*pst$, .*mbox$, .*spool$\n#{color_banner('%VM%')} : .*vmem$, .*ova$, .*vmdk$, .*snapshot$, .*vdi$\n#{color_banner('%DB%')} -> .*sql$, .*db$, .*sqlite.\n#{color_banner('%ALL%')} : Combination of all of the above (default: [#{color_banner('%ALL%')}]):"
+		searches = "#{color_banner('%OFFICE%')} : .*xls$, .*csv$, .*doc$, .*docx$, .*pdf$\n"
+		searches  << "#{color_banner('%PASSWORD%')} : accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$\n"
+		searches  << "#{color_banner('%KEYFILES%')} : .*kbdx$, .*ppk$, id_rsa, .*pem$, .*crt$, .*key$\n"
+		searches  << "#{color_banner('%CONFIG%')} : .*cfg$, .*inf$, .*ini$, .*config$, .*conf$, .*setup$, .*cnf$, pref.*xml$, .*preferences$, .*properties$\n"
+		searches  << "#{color_banner('%BATCH%')} : .*bat$, .*sh$, .*ps$, .*ps1$, .*vbs$, .*run$\n"
+		searches  << "#{color_banner('%MAIL%')} : .*pst$, .*mbox$, .*spool$\n"
+		searches  << "#{color_banner('%VM%')} : .*vmem$, .*ova$, .*vmdk$, .*snapshot$, .*vdi$\n"
+		searches  << "#{color_banner('%DB%')} -> .*sql$, .*db$, .*sqlite.\n\n"
+		searches  << "#{color_banner('%ALL%')} : Combination of all of the above (default: [#{color_banner('%ALL%')}]):"
+		
+		print "Enter path to newline separated file containing filenames to search for, or enter in comma separated files in the form of regular expressions. (Substitutions exist for commonly useful filetypes and extensions:\n#{searches}"
 		ext = rgets
+		puts 
+		
 		if ext.empty?
 			ext = "%ALL%"
 		# Get valid path
@@ -48,10 +60,9 @@ class Filefind < Poet::Scanner
 		end
 		@snapshot = @snapshot.eql? 'y'
 		
-		# TODO: make C:\\derp a randomized filename
 		# Perhaps make a check for TEMP files that are writeable - do a write check and confirm.
 		@command = ''
-		@command << '& dir /s /b > C:\\derp'
+		@command << '& dir /s /b > C:\\}'
 		
 		# substitute our prefills
 		subd = ''
@@ -68,7 +79,7 @@ class Filefind < Poet::Scanner
 			e.split(',').each {|ee| @regexes.push(ee)}
 		end
 
-		@regexes.each {|file| @command = @command + " & findstr /i #{file.strip} C:\\derp"}
+		@regexes.each {|file| @command = @command + " & findstr /i #{file.strip} C:\\#{@dropfile}"}
 		# ext.split(',').each {|file| @command << "
 		create_folder("#{@log}/loot") unless folder_exists("#{@log}/loot")
 		create_folder("#{@log}/loot/filefinder") unless folder_exists("#{@log}/loot/filefinder")
@@ -82,7 +93,8 @@ class Filefind < Poet::Scanner
 		smboptions = "//#{host}"
 		files_found = ''
 		all_files = ''
-		drives = []		
+		drives = []
+		dropfile = random_file
 	
 		wmic = smbwmic(smboptions, "select Description,DeviceID from Win32_logicaldisk")
 		wmic.lines.each do |line|
@@ -97,14 +109,15 @@ class Filefind < Poet::Scanner
 			# If final one, add uninstall to winexe
 			smboptions = "--uninstall #{smboptions}" if drive.eql? drives.last
 			## TODO: redo, cd [drive] doesnt work, misses all except current drive (C:\)
-			find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}")
+			find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}#{dropfile}")
 			# Continue on if nothing found
 			next if find =~ /File Not Found/
 			# Pull full list for later should we want it sans anything in the C:\windows dir (waste)?
 			files_found << find
 
+			### Convert to local SMB share when implemented
 			if @snapshot
-				all_files = winexe(smboptions, "CMD /C type C:\\derp && del C:\\derp")
+				all_files = winexe(smboptions, "CMD /C type C:\\#{dropfile} && del C:\\#{dropfile}")
 			end
 		end
 
