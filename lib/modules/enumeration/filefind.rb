@@ -62,7 +62,7 @@ class Filefind < Poet::Scanner
 		
 		# Perhaps make a check for TEMP files that are writeable - do a write check and confirm.
 		@command = ''
-		@command << '& dir /s /b > C:\\}'
+		@command << '& dir /s /b > C:\\'
 		
 		# substitute our prefills
 		subd = ''
