@@ -43,7 +43,7 @@ class Filefind < Poet::Scanner
 			print "Would you like to save a snapshot list of the file system (likely huge)? [#{color_banner('y')}|#{color_banner('n')}]"
 			@snapshot = rgets.downcase
 		end
-		@snapshot = true if @snapshot.eql? "y"
+		@snapshot = @snapshot.eql? 'y'
 		
 		# TODO: make C:\\derp a randomized filename
 		# Perhaps make a check for TEMP files that are writeable - do a write check and confirm.
@@ -82,6 +82,7 @@ class Filefind < Poet::Scanner
 			next if find =~ /File Not Found/
 			# Pull full list for later should we want it sans anything in the C:\windows dir (waste)?
 			files_found << find
+
 			if @snapshot
 				all_files = winexe(smboptions, "CMD /C type C:\\derp && del C:\\derp")
 			end
@@ -105,6 +106,7 @@ class Filefind < Poet::Scanner
 				print_bad("#{Chost}: Issues Writing to #{@log}")
 			end
 		end
+
 		if @snapshot
 			if all_files.empty?
 				print_bad("#{host.ljust(15)} - No files founnd at all on target system??")
@@ -132,6 +134,7 @@ class Filefind < Poet::Scanner
 		puts
 		puts "Total files found: #{@success}"
 		puts "File lists are located in: #{@log}/loot/filefinder/<host>_filelist.txt"
+
 		if @snapshot
 			puts "Full filesystem snapshot located in: #{@log}/loot/filefinder/<host>_allfiles.txt"
 		end
