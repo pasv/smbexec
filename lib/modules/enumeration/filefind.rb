@@ -31,15 +31,15 @@ class Filefind < Poet::Scanner
 		@regexes = Array.new
 		@dropfile = random_name
 		
-		searches = "#{color_banner('%OFFICE%')} : .*\\.xls$, .*\\.csv$, .*\\.doc$, .*\\.docx$, .*\\.pdf$\n"
-		searches  << "#{color_banner('%PASSWORD%')} : accounts.xml$, unattend.xml$, unattend.txt$, sysprep.xml$, .*\\.passwd$, passwd$, shadow$, passwd~$, shadow~$, passwd-$, shadow-$, tomcat-users.xml$, RazerLoginData.xml$, ultravnc.ini$, profiles.xml$, spark.properties$, steam.vdf$, WinSCP.ini$, accounts.ini$, ws_ftp.ini$, svn.simple$, config.dyndns$, FileZilla.Server.xml$\n"
-		searches  << "#{color_banner('%KEYFILES%')} : .*\\.kbdx$, .*\\.ppk$, id_rsa, .*\\.pem$, .*\\.crt$, .*\\.key$\n"
-		searches  << "#{color_banner('%CONFIG%')} : .*\\.cfg$, .*\\.inf$, .*\\.ini$, .*\\.config$, .*\\.conf$, .*\\.setup$, .*\\.cnf$, pref.*\\.xml$, .*\\.preferences$, .*\\.properties$, config.*\\.xml$\n"
-		searches  << "#{color_banner('%BATCH%')} : .*\\.bat$, .*\\.sh$, .*\\.ps$, .*\\.ps1$, .*\\.vbs$, .*\\.run$\n"
-		searches  << "#{color_banner('%MAIL%')} : .*\\.pst$, .*\\.mbox$, .*\\.spool$\n"
-		searches  << "#{color_banner('%VM%')} : .*\\.vmem$, .*\\.ova$, .*\\.vmdk$, .*\\.snapshot$, .*\\.vdi$, .*\\.vmx$\n"
-		searches  << "#{color_banner('%DB%')} -> .*\\.sql$, .*\\.db$, .*\\.sqlite.\n\n"
-		searches  << "#{color_banner('%ALL%')} : Combination of all of the above (default: [#{color_banner('%ALL%')}]):"
+		searches = "#{color_banner('%OFFICE%')} : #{OFFICE_EXT}\n"
+		searches  << "#{color_banner('%PASSWORD%')} : #{PASSWORD_EXT}\n"
+		searches  << "#{color_banner('%KEYFILES%')} : #{KEYFILES_EXT}\n"
+		searches  << "#{color_banner('%CONFIG%')} : #{CONFIG_EXT}\n"
+		searches  << "#{color_banner('%BATCH%')} : #{BATCH_EXT}\n"
+		searches  << "#{color_banner('%MAIL%')} : #{MAIL_EXT}\n"
+		searches  << "#{color_banner('%VM%')} : #{VM_EXT}\n"
+		searches  << "#{color_banner('%DB%')} -> #{DB_EXT}\n\n"
+		searches  << "#{color_banner('%ALL%')} : Combination of all of the above (default: [#{color_banner('%ALL%')}]):\n"
 		
 		print "Enter path to newline separated file containing filenames to search for, or enter in comma separated files in the form of regular expressions. (Substitutions exist for commonly useful filetypes and extensions:\n#{searches}"
 		ext = rgets
@@ -87,25 +87,25 @@ class Filefind < Poet::Scanner
 		title = "File Finder"
 		puts color_header(title)
 	end
-	def stats(files)
-		ret = ''
-		files_array = Array.new
-		files_array = files.split("\r\n")
-		
-		ret << "Stats:\n"
-		@regexes.each do |match|
-			count = 0
-			files_array.each do |file|
-				if file.scan(/#{match.gsub(/\\\\/, "\\")}/).size > 0
-					count = count + 1
-				end
-			end
-			if count > 0
-				ret << "#{match} : #{count} file(s) found\n" 
-			end
-		end
-		return ret
-	end
+#	def stats(files)
+#		ret = ''
+#		#files_array = Array.new
+#		files_array = files.split("\r\n")
+#		
+#		ret << "Stats:\n"
+#		@regexes.each do |match|
+#			count = 0
+#			files_array.each do |file|
+#				if file.scan(/#{match.gsub(/\\\\/, "\\")}/).size > 0
+#					count = count + 1
+#				end
+#			end
+#			if count > 0
+#				ret << "#{match} : #{count} file(s) found\n" 
+#			end
+#		end
+#		return ret
+#	end
 	def run(username, password, host)
 		smboptions = "//#{host}"
 		files_found = ''
@@ -148,13 +148,9 @@ class Filefind < Poet::Scanner
 			end
 			@success += files_found.lines.count
 			
-			puts stats(files_found)
+			#puts stats(files_found)
 			
-			begin
-				File.open("#{@log}/loot/filefinder/#{host}_filelist.txt", 'a') { |file| file.write(files_found) }
-			rescue
-				print_bad("#{host}: Issues Writing to #{@log}")
-			end
+			write_file(files_found, "#{host}_filelist.txt", "#{@log}/loot/filefinder/")
 		end
 
 		if @snapshot
@@ -170,12 +166,7 @@ class Filefind < Poet::Scanner
 				end
 				@success += all_files.lines.count
 				
-				begin
-					# Overwrite, TODO: check if file exists and inform user we're overwriting the snapshot
-					File.open("#{@log}/loot/filefinder/#{host}_allfiles.txt", 'w') { |file2| file2.write(all_files) }
-				rescue
-					print_bad("#{host}: Issues Writing to #{@log}")
-				end
+				write_file(all_files, "#{host}_allfiles.txt", "#{@log}/loot/filefinder/")
 			end
 		end
 	end
