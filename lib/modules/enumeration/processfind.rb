@@ -69,7 +69,7 @@ class Processfind < Poet::Scanner
 			e = e.gsub /%RDP%/, RDP_PROC
 			e = e.gsub /%SYSINTERNALS%/, SYSINTERNALS_PROC
 			e = e.gsub /%PASSWORD%/, PASSWORD_PROC
-			e.split(',').each {|ee| @regexes.push(ee)}
+			e.split(',').each {|ee| @regexes.push(ee.strip)}
 		end
 
 		@regexes.each {|process| @command = @command + " & findstr /i #{process} C:\\#{@dropfile}"}
