@@ -128,11 +128,13 @@ class Filefind < Poet::Scanner
 			find = winexe(smboptions, "CMD /C cd #{drive}\\#{@command}")
 			# Continue on if nothing found
 			next if find =~ /File Not Found/
-			# Pull full list for later should we want it sans anything in the C:\windows dir (waste)?
+			
 			files_found << find
 
 			if @snapshot
 				all_files = winexe(smboptions, "CMD /C type C:\\#{@dropfile} && del C:\\#{@dropfile}")
+			else 
+				wmiexec(smboptions, "CMD /C del C:\\#{@dropfile}")
 			end
 		end
 
